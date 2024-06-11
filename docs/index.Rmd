@@ -1,0 +1,4179 @@
+---
+title: "Built Environment Indicators and Health - Interactive Map Tool"
+subtitle: "Data Methodology"
+author: "Matt Gerken, Innovation Team @OCTO (Office of the Chief Technology Officer)"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+
+# Introduction
+
+The Built Environment Indicators and Health Interactive Map Tool originated as an October 2023 Data Science @ DC Hacktoberfest project. The tool sheds light on the relationship between the built environment and public health outcomes in the District of Columbia. By uncovering built environment disparities, this tool empowers stakeholders to make evidence-based decisions and drive equitable interventions for better health outcomes in the District of Columbia.
+
+The tool incorporates 41 measures organized into 9 "Drivers", or topic areas, that can impact health outcomes: Education, Employment, Income, Housing, Transportation, Food Environment, Medical Care, Outdoor Environment, and Community Safety. These Drivers are based on the social determinants of health as described in the [2018 DC Health Equity Report](https://app.box.com/s/yspij8v81cxqyebl7gj3uifjumb7ufsw). 
+
+This page serves as the underlying data methodology for the tool.
+
+## Project Team
+
+The 2023 Built Environment Indicators & Health map tool Hacktoberfest team includes representation from the Department of Energy and the Environment (DOEE), DC Health (DOH), the Office of the State Superintendent of Education (OSSE), the Office of the Chief Technology Officer (OCTO), the Office of Planning (OP), and the Innovation Team @ OCTO (the Office of the Chief Technology Officer).
+
+* **Project Leads**: Oana Leahu-Aluas (DOEE) and Joann Jolly (DOH)
+* **Data Lead**: Matt Gerken (Innovation Team @OCTO)
+* **Map Tool Lead**: Kareem Ahmed (OCTO)
+
+Project members:
+
+* Anneta Arno (DOH)
+* Paul Elliott (Innovation Team @OCTO)
+* Stephen Gyor (OP)
+* Marie Lachance (Innovation Team @OCTO)
+* Lauren Marr (DOH)
+* Emily Putzer (DOH)
+* Lindsay Quarles (Innovation Team @OCTO)
+* Erika Rivera (OSSE)
+* Peter Varley (Innovation Team @OCTO)
+
+The team also acknowledges Hersh Gupta (OCTO) for his support and guidance.
+
+## Approach
+
+The project team started with an initial accounting of aspects of the built environment that are related to social determinants of health in the District of Columbia, informed by the [2018 DC Health Equity Report](https://app.box.com/s/yspij8v81cxqyebl7gj3uifjumb7ufsw). The team took this initial list and expanded it, pulling from a review of the relevant literature, internal District agency reports, and similar data tools. Other data tools that informed the project team include:
+
+* The EPA's [Environmental Justice Screening and Mapping Tool](https://www.epa.gov/ejscreen)
+* The Urban Institute's [Redefining Walkability](https://www.urban.org/data-tools/redefining-walkability) data tool
+* "[Is Seattle a 15-minute city? It depends on where you want to walk](https://nathenry.com/writing/2023-02-07-seattle-walkability.html)" (Nat Henry)
+
+These indicators, or measures, were then categorized into 9 Drivers, or topic areas, and operationalized using a mix of mostly public and some internal data sources. The aim was to create a Driver score for each of DC's census tracts by weighting the individual indicators within each driver. The table below lists the 9 drivers, the 41 indicators, and their assigned weights, which were informed by a review of the literature as well as team discussions. Most indicators are positively correlated with health outcomes in the District, whereas others are negatively correlated with District health outcomes.
+
++---------------------+-------------------------------------------------------------+
+| Driver              | Indicator (Weight)                                          |
++=====================+=============================================================+
+| Education           | - Proximity to schools (20%)                                |
+|                     | - Proximity to modernized schools (10%)                     |
+|                     | - Proximity to playgrounds (5%)                             |
+|                     | - Proximity to crossing guards (12.5%)                      |
+|                     | - Safe routes to school (12.5%)                             |
+|                     | - Proximity to libraries (10%)                              |
+|                     | - Access to wireless hotspots (7.5%)                        |
+|                     | - Access to broadband internet (7.5%)                       |
+|                     | - Proximity to recreation centers (15%)                     |
++---------------------+-------------------------------------------------------------+
+| Employment          | - Travel time to work (100%)                                | 
++---------------------+-------------------------------------------------------------+
+| Income              | - Proximity to banking institutions (50%)                   |
+|                     | - Proximity to check cashing institutions (50%)             |
++---------------------+-------------------------------------------------------------+
+| Housing             | - Housing stock quality (25%)                               |
+|                     | - Share of homes built since 1970 (25%)                     |
+|                     | - Distribution of affordable housing (25%)                  |
+|                     | - Proximity to vacant or blighted houses (25%)              |
++---------------------+-------------------------------------------------------------+
+| Transportation      | - Proximity to Metro bus (16.5%)                            |
+|                     | - Proximity to Metro station (16.5%)                        |
+|                     | - Proximity to Capital Bikeshare locations (11.3%)          |
+|                     | - Access to bike lanes (11.3%)                              |
+|                     | - Sidewalk quality (11.4%)                                  |
+|                     | - Parking availability (33%)                                |
++---------------------+-------------------------------------------------------------+
+| Food Environment    | - Proximity to grocery stores (12.5%)                       |
+|                     | - Low Food Access areas (12.5%)                             | 
+|                     | - Proximity to farmers markets (20%)                        |
+|                     | - Availability of healthy food within stores (25%)          |
+|                     | - Proximity to restaurants (20%)                            |
+|                     | - Proximity to liquor stores (10%)                          |
++---------------------+-------------------------------------------------------------+
+| Medical Care        | - Proximity to health care facilities (75%)                 |
+|                     | - Proximity to mental health facilities and providers (25%) |
++---------------------+-------------------------------------------------------------+
+| Outdoor Environment | - Tree canopy (20%)                                         |
+|                     | - Proximity to parks (20%)                                  | 
+|                     | - Proximity to trails (20%)                                 |
+|                     | - Presence of mix of land uses (10%)                        |
+|                     | - Positive land use (10%)                                   |
+|                     | - Flood zones (20%)                                         |
++---------------------+-------------------------------------------------------------+
+| Community Safety    | - Proximity to vacant lots (14%)                            |
+|                     | - Streetlight coverage (24%)                                | 
+|                     | - Proximity to police department locations (19%)            |
+|                     | - Proximity to fire stations (19%)                          |
+|                     | - Proximity to High Injury Network Corridors (24%)          |
++---------------------+-------------------------------------------------------------+
+
+## Data
+
+Most of the data is read in from Open Data DC. A few indicators use 2017-2021 5-year American Community Survey (ACS) estimates. A few indicators rely on data provided to the team by District government agencies. 
+
+In the analysis file below, the data that inform each indicator are provided.
+
+## Methodology
+
+All 41 indicators are framed as the share of each census tract that has a given characteristic. Many of the indicators concern proximity - using walking distance times - to a particular neighborhood resource. We rely on the [Open Route Service](https://giscience.github.io/openrouteservice-r/articles/openrouteservice.html) R package to construct "isochrones" around neighborhood resources of interest. An isochrone is a line drawn around a latitude/longitude coordinate, such that all points on that line boundary could be arrived at in the same travel time.
+
+The indicators framed as proximity to neighborhood resources employ the following data manipulation steps: 
+
+1. Read in the neighborhood resources as latitude/longitude coordinates
+2. Send those points to the Open Route Service API using ors_isochrones(), specifying the travel mode (for this data tool, walking) and the desired travel time in minutes (for this data tool, walking time)
+3. Create one non-overlapping boundary from the isochrones produced in the previous step using st_union()
+4. Intersect that one non-overlapping isochrone boundary with the 206 census tract boundaries in the District using st_intersection()
+5. Create the data measure as the intersected area divided by the total land area for each census tract using st_area()
+
+In determining which travel times to use for each indicator, the team consulted a review of the literature and internal District agency reports and plans, with the idea of a "15-minute city" as a galvanizing principle.
+
+Not all indicators are framed as proximity to a neighborhood resource. For those indicators that employ a different methodology, that methodology is stated below.
+
+```{r load data, include =  FALSE}
+
+#remotes::install_github("GIScience/openrouteservice-r")
+#install.packages("htmltools")
+#install.packages("cli")
+
+# load packages
+library(tidyverse)
+library(dplyr)
+library(tidyr)
+library(readxl)
+library(magrittr)
+library(urbnthemes)
+library(ggplot2)
+library(openxlsx)
+library(lubridate)
+library(janitor)
+library(naniar)
+library(scales)
+library(ggrepel) 
+library(stringr)
+library(utils)
+library(tidylog)
+library(rrapply)
+library(mdthemes)
+library(aws.s3)
+library(dotenv)
+library(tigris)
+library(tidycensus)
+library(sf)
+library(skimr)
+library(stringi)
+library(openrouteservice)
+
+# INSERT YOUR ORS API KEY HERE. 
+# To get an ORS API token, create an account here and then request token. 
+# Government employees (and other sectors) can also request to upgrade to a 
+# collaborative plan, which increases daily quota limits.
+# https://openrouteservice.org/
+ors_api_key("INSERT ORS API KEY HERE")
+ors_profile(mode = "walking")
+
+library(mapview)
+library(gridExtra)
+library(leaflet.extras2)
+library(ggtext)
+library(geojsonsf)
+library(jsonlite)
+library(gt)
+library(gtExtras)
+library(corrplot)
+library(psych)
+
+options(scipen = 100)
+
+set_urbn_defaults(style = "map")
+
+### read in ACS variables list
+v21 <- load_variables(2021, "acs5", cache = TRUE)
+
+### CREATE FUNCTIONS
+
+## CREATE A FUNCTION THAT CALCULATES WALKING DISTANCE BOUNDARY
+
+create_boundary <- function(dataframe, minutes){
+  
+  # Create a sequence of indices with a step of 5
+  indices <- seq(1, nrow(dataframe), by = 5)
+  
+  # Initialize an empty dataframe to store the results
+  result_df <- data.frame()
+  
+  # Loop through the indices
+  result_list <- lapply(indices, function(i) {
+    # Subset the data frame based on the current index and the next 4 indices (or smaller number toward end)
+    subset_df <- dataframe[i:min(i + 4, nrow(dataframe)), ]
+    
+    # Perform your desired operation on the subset_df
+    res <- ors_isochrones(subset_df, profile = ors_profile(mode = "walking"), 
+                          range = minutes, interval = minutes, output = "sf")
+    
+    return(res)
+  })
+  
+  result_df <- bind_rows(result_list)
+  
+  # transform into an sf object
+  st_result <- result_df %>%
+    st_transform(6487)
+  
+  # do a st_union to remove overlapping boundaries 
+  boundary <- st_union(st_result) %>%
+    st_transform(6487)
+  
+  # remove water boundary
+  boundary_no_water <- st_erase(boundary, dc_water)
+  
+  return(boundary_no_water)
+  
+}
+
+## CREATE A FUNCTION THAT VISUALIZES POINTS AND ISOCHRONES
+create_mapview = function(df1, df2, title) {
+  
+  m1 <- mapview(df1, zcol = "type", label = "NAME", map.types = "CartoDB.Positron", 
+              layer.name = title, homebutton = FALSE)
+  m2 <- mapview(df2, map.types = "CartoDB.Positron", homebutton = FALSE, legend = FALSE)
+
+  m1 | m2
+  
+}
+
+
+## CREATE A FUNCTION THAT CALCULATES SHARE OF CENSUS TRACT WITHIN X WALKING DISTANCE
+
+create_measure <- function(df, colname) {
+  
+  # quote the column name so it gets passed into dplyr
+  colname <- enquo(colname)            
+
+  # find intersection between census tract boundary and walking distance boundary
+  intersect <- st_intersection(dc_tracts_no_water, df) %>%
+    mutate(!!colname := st_area(geometry) / (ALAND),
+           !!colname := as.numeric(!!colname)) %>%
+    st_drop_geometry() %>%
+    select(GEOID, !!colname)
+
+  # join onto DC tracts df to get full list
+  new_df <- dc_tracts %>%
+    select(GEOID) %>%
+    st_drop_geometry() %>%
+    full_join(intersect, by = c("GEOID")) %>%
+    mutate(!!colname := replace_na(!!colname,0))
+
+  return(new_df)
+  
+}
+
+## CREATE A FUNCTION THAT CREATES A CENSUS TRACT MAP OF RESULTING MEASURE
+create_ggplot <- function(df, colname, title, source) {
+  
+  set_urbn_defaults(style = "map")
+  
+  # quote the column name so it gets passed into dplyr
+  colname <- enquo(colname) 
+  
+  dc_tracts %>%
+    full_join(df, by = c("GEOID")) %>%
+    ggplot() + 
+    geom_sf(aes(fill = !!colname)) + 
+    scale_fill_gradientn(
+      labels = scales::percent_format(),
+      name = NULL,
+      breaks=c(0,0.25,0.5,0.75,1),
+      limits=c(0,1),
+      na.value = "#d2d2d2"
+      ) + 
+    geom_sf(data = dc_wards, color = "white", fill = "transparent", linewidth = 1) +
+    theme(legend.direction = "vertical", legend.box = "vertical",
+          plot.caption = element_markdown(hjust = 0)) + 
+    ggtitle(title) + 
+    labs(caption = paste("**Source:**", source)) 
+  
+}
+
+## CREATE A FUNCTION THAT CREATES A HISTOGRAM OF VALUES
+create_histogram <- function(df, colname, title, xaxis) {
+  
+  set_urbn_defaults(style = "print")
+  
+  # quote the column name so it gets passed into dplyr
+  colname <- enquo(colname)
+
+  df %>%
+    filter(!is.na(!!colname)) %>%
+    ggplot(mapping = aes(x = !!colname)) + 
+    geom_histogram(binwidth = 0.05, boundary = 0, color = I("white")) +
+    scale_x_continuous(expand = expansion(mult = c(0.002, 0)), 
+                       limits = c(-0.02, 1.02),
+                       breaks = 0:10 * 0.1,
+                       labels = scales::percent) +  
+    scale_y_continuous(expand = expansion(mult = c(0, 0.2)), labels = scales::comma) +
+    labs(x = xaxis,
+         y = "Number of census tracts") + 
+    ggtitle(title)
+
+}  
+  
+## CREATE A FUNCTION THAT SUBTRACTS ONE GEOMETRY FROM ANOTHER
+
+st_erase = function(x, y) st_difference(x, st_union(st_combine(y)))
+
+### GEOGRAPHIES
+
+# get DC tracts
+dc_tracts <- tracts(
+  state = "DC",
+  year = 2021,
+  progress_bar = FALSE
+) %>%
+  st_transform(crs = 6487)
+
+#mapview(dc_tracts)
+
+# DC water boundaries
+dc_water <- area_water(
+  state = "DC",
+  county = "District of Columbia",
+  year = 2021,
+  progress_bar = FALSE
+) %>%
+  st_transform(crs = 6487)
+
+#mapview(dc_water)
+
+# DC tracts without water boundaries
+dc_tracts_no_water <- st_erase(dc_tracts, dc_water) %>%
+  st_transform(crs = 6487) %>%
+  mutate(new_area = st_area(geometry))
+
+#mapview(dc_tracts_no_water)
+
+# DC blocks
+dc_blocks <- block_groups(
+  state = "DC",
+  year = 2021,
+  progress_bar = FALSE
+) %>%
+  st_transform(crs = 6487)
+
+# dc wards
+dc_wards <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Administrative_Other_Boundaries_WebMercator/MapServer/53/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  st_transform(crs = 6487) %>%
+  select(WARD, NAME, GEOID, geometry)
+
+# dc wards
+dc_wards <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Administrative_Other_Boundaries_WebMercator/MapServer/53/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  st_transform(crs = 6487) %>%
+  select(WARD, NAME, GEOID, geometry)
+
+### DEMOGRAPHICS
+
+# get counts by race of DC tracts
+dc_race <- get_acs(
+  geography = "tract",
+  state = "DC",
+  year = 2021,
+  variables = c(
+    Hispanic = "DP05_0071P",
+    NotHispanic = "DP05_0076P",
+    White = "DP05_0077P",
+    Black = "DP05_0078P",
+    Asian = "DP05_0080P"
+  ),
+  geometry = TRUE,
+  progress_bar = FALSE
+) %>%
+  # divide by 100
+  select(-NAME, -moe) %>%
+  mutate(estimate = estimate / 100) %>%
+  pivot_wider(
+    names_from = "variable",
+    values_from = "estimate"
+  )
+
+# population
+dc_pop <- get_acs(
+  geography = "tract",
+  state = "DC",
+  year = 2021,
+  variables = c(
+    pop = "B01003_001"
+  ),
+  geometry = TRUE,
+  progress_bar = FALSE
+) %>%
+  # divide by 100
+  select(GEOID, estimate) %>%
+  st_drop_geometry() %>%
+  rename(pop = estimate)
+ 
+### vectors
+two_min <- 60*2
+five_min <- 60*5
+ten_min <- 60*10  
+fifteen_min <- 60*15
+
+
+
+```
+
+# Driver 1: Education
+
+Driver 1: Education is composed of the following indicators applying the listed weights.
+
+* **Indicator 1: Proximity to schools**: 20%
+* **Indicator 2: Proximity to modernized schools**: 10%
+* **Indicator 3: Proximity to playgrounds**: 5%
+* **Indicator 4: Proximity to crossing guards**: 12.5%
+* **Indicator 5: Safe routes to school**: 12.5%
+* **Indicator 6: Proximity to libraries**: 10%
+* **Indicator 7: Access to wireless hotspots**: 7.5%
+* **Indicator 8: Access to broadband internet**: 7.5%
+* **Indicator 9: Proximity to recreation centers**: 15%
+
+## Indicator 1: Proximity to schools
+
+This indicator considers four schools types in the District of Columbia and treats those school types equally. Data are read in from Open Data DC.
+
+* [DC Public Schools](https://opendata.dc.gov/datasets/dc-public-schools/about)
+* [DC Charter Schools](https://opendata.dc.gov/datasets/DCGIS::dc-charter-schools/about)
+* [Child Development Centers](https://opendata.dc.gov/datasets/DCGIS::child-development-centers/about)
+* [Independent Schools](https://opendata.dc.gov/datasets/8986ebe04f554892aa76b95b284c4942_3/explore)
+
+**Data Measure**: Share of census tract within a 15-minute walk of a DC public school, a DC charter school, a child development center, or an independent school
+
+```{r driver1.1, echo =  FALSE}
+
+### DRIVER 1:EDUCATION
+
+## Indicator 1.1: Proximity to school
+
+# public schools
+public_schools <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Education_WebMercator/MapServer/5/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>% select(NAME, ADDRESS, LONGITUDE, LATITUDE) %>%
+  mutate(type = "Public School")
+
+# charter schools
+charter_schools <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Education_WebMercator/MapServer/1/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>% select(NAME, ADDRESS, LONGITUDE, LATITUDE) %>%
+  mutate(type = "Charter School") 
+
+# child development center
+child_development_center <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Public_Service_WebMercator/MapServer/33/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>% select(NAME, ADDRESS, LONGITUDE, LATITUDE) %>%
+  mutate(type = "Child Development Center")
+
+# independent schools
+independent_schools <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Education_WebMercator/MapServer/3/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>% select(NAME, ADDRESS, LONGITUDE, LATITUDE) %>%
+  mutate(type = "Independent Schools")
+
+# create combined schools dataframe 
+all_schools <- public_schools %>%
+  rbind(charter_schools, child_development_center, independent_schools)
+
+all_schools_ors <- all_schools %>%
+  filter(!(NAME == "River Terrace Education Campus" & ADDRESS == "405 Anacostia Ave NE")) %>%
+  filter(NAME != "Happy Faces Academy") %>%
+  filter(NAME != "Children First Inc. Of Washington DC") %>%
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct()
+  # remove lat-lon coordinates creating issues with open route service
+
+# find the boundary of 15-minute walking distance
+schools_boundary <- create_boundary(all_schools_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d1.1_schools <- create_measure(schools_boundary, m1.1_schools)
+
+# side by side map of points and walking distance boundaries
+create_mapview(all_schools, schools_boundary, "All Schools (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d1.1_schools, m1.1_schools, 
+              "Indicator 1.1: Share within 15-Minute Walk to Schools",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d1.1_schools, m1.1_schools, 
+              "Indicator 1.1: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to schools")
+
+```
+
+## Indicator 2: Proximity to modernized schools
+
+This indicator considers proximity to schools in the District of Columbia that have had full modernizations (all new systems, finishes, features, etc.) from 2019 through summer 2024. Data are read in from Open Data 
+
+* [DC Public Schools](https://opendata.dc.gov/datasets/dc-public-schools/about)
+* [DC Charter Schools](https://opendata.dc.gov/datasets/DCGIS::dc-charter-schools/about)
+* [Child Development Centers](https://opendata.dc.gov/datasets/DCGIS::child-development-centers/about)
+* [Independent Schools](https://opendata.dc.gov/datasets/8986ebe04f554892aa76b95b284c4942_3/explore)
+
+**Data Measure**: Share of census tract within a 15-minute walk of a school that has had a full modernization since 2019
+
+```{r driver1.2, echo =  FALSE}
+
+## Indicator 1.2: Proximity to modernized schools
+all_schools_m1.2 <- all_schools %>%
+  # manually filter for schools that have been fully modernized (all new systems, finishes, features) from 2019 through summer 2024
+  filter(NAME %in% c("Garfield Elementary School", "School-Within-School", "C.W. Harris Elementary School",
+                     "Houston Elementary School", "Hyde-Addison Elementary School", "Jefferson Middle School Academy",
+                     "Kimball Elementary School", "John Lewis Elementary School", "Capitol Hill Montessori",
+                     "Maury Elementary School", "Raymond Elementary School", "Bard High School Early College DC",
+                     "Smothers Elementary School", "Benjamin Banneker High School", "Coolidge High School",
+                     "Dorothy I. Height Elementary School", "Eaton Elementary School", "School Without Walls @ Francis-Stevens"))
+
+all_schools_m1.2_ors <- all_schools_m1.2 %>%
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct()
+
+# find the boundary of 15-minute walking distance
+schools_m1.2_boundary <- create_boundary(all_schools_m1.2_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d1.2_quality <- create_measure(schools_m1.2_boundary, m1.2_quality)
+
+# side by side map of points and walking distance boundaries
+create_mapview(all_schools_m1.2, schools_m1.2_boundary, "All Modernized Schools (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d1.2_quality, m1.2_quality, 
+              "Indicator 1.2: Share within 15-Minute Walk to Modernized Schools",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d1.2_quality, m1.2_quality, 
+              "Indicator 1.2: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to modernized schools")
+
+
+```
+
+
+## Indicator 3: Proximity to playgrounds
+
+This indicator considers proximity to playgrounds in the District of Columbia. Data are read in from Open Data DC.
+
+* [Parks and Recreation Areas](https://opendata.dc.gov/datasets/DCGIS::parks-and-recreation-areas/about): Applied the filter USE_TYPE == "REC CENTER GROUNDS"
+
+**Data Measure**: Share of census tract within a 10-minute walk of a playground
+
+```{r driver1.3, echo =  FALSE}
+
+## Indicator 1.3: Playgrounds accessible to public
+
+playgrounds <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Recreation_WebMercator/MapServer/9/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>% select(NAME, ADDRESS, USE_TYPE) %>%
+  mutate(type = "Playground") %>%
+ # st_transform(crs = 6487) %>%
+  filter(USE_TYPE == "REC CENTER GROUNDS") 
+
+# playground dataframe for function 
+playgrounds_ors <- playgrounds %>%
+  mutate(centroid = st_centroid(geometry),
+         coordinates = st_coordinates(centroid),
+         lat = coordinates[, "Y"], 
+         lon = coordinates[, "X"]) %>%
+  st_drop_geometry() %>%
+  select(lon, lat) %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 10-minute walking distance
+playgrounds_boundary <- create_boundary(playgrounds_ors, ten_min)
+
+# create share of census tract within walking distance measure
+d1.3_playgrounds <- create_measure(playgrounds_boundary, m1.3_playgrounds)
+
+# side by side map of points and walking distance boundaries
+create_mapview(playgrounds, playgrounds_boundary, "All Playgrounds (Layer 1) | 10-Minute Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d1.3_playgrounds, m1.3_playgrounds, 
+              "Indicator 1.3: Share within 10-Minute Walk to Playgrounds",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d1.3_playgrounds, m1.3_playgrounds, 
+              "Indicator 1.3: Histogram of Census Tract Values",
+              "Share of census tract within 10-minute walk to playgrounds")
+
+```
+
+## Indicator 4: Proximity to crossing guards
+
+This indicator considers proximity to crossing guards in the District of Columbia. Data are read in from Open Data DC.
+
+* [School Crossing Guards](https://opendata.dc.gov/datasets/240156f8a5af4c949f204db73bc661d4_82/explore)
+
+**Data Measure**: Share of census tract within a 2-minute walking distance of a school crossing guard intersection
+
+```{r driver1.4, echo =  FALSE}
+
+## Indicator 1.4: Proximity to crossing guards
+
+crossing_guards <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Transportation_Traffic_Calming_WebMercator/MapServer/82/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Crossing Guards") %>%
+  rename(NAME = ADDRESS)
+
+crossing_guards_ors <- crossing_guards %>%
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 2-minute walking distance
+crossing_guards_boundary <- create_boundary(crossing_guards_ors, two_min)
+
+# create share of census tract within walking distance measure
+d1.4_crossing_guards <- create_measure(crossing_guards_boundary, m1.4_crossing_guards)
+
+# side by side map of points and walking distance boundaries
+create_mapview(crossing_guards, crossing_guards_boundary, "All Crossing Guards (Layer 1) | 2-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d1.4_crossing_guards, m1.4_crossing_guards, 
+              "Indicator 1.4: Share within 2-Minute Walk to Crossing Guards",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d1.4_crossing_guards, m1.4_crossing_guards, 
+              "Indicator 1.4: Histogram of Census Tract Values",
+              "Share of census tract within 2-minute walk to crossing guards")
+
+```
+
+## Indicator 5: Safe routes to school
+
+This indicator considers safe routes to schools in the District of Columbia. Data are read in from Open Data DC.
+
+* [Safe Passage Interactive Mapping App](https://opendata.dc.gov/apps/c2cd40e6008d4b04a3a4fc8713b55c3e/explore)
+
+**Data Measure**: Share of census tract located in a Safe Passage area
+
+```{r driver1.5, echo =  FALSE}
+
+## Indicator 1.5: Safe routes to school
+
+# safe passage areas 
+safe_passage <- geojson_sf("https://services.arcgis.com/neT9SoYxizqTHZPH/ArcGIS/rest/services/Safe_Passage_Interactive_Map_20230920_WFL1/FeatureServer/4//query?where=1%3D1&geometryType=esriGeometryEnvelope&spatialRel=esriSpatialRelIntersects&f=pgeojson") %>%
+   st_transform(crs = 6487)
+
+# create share of census tract within walking distance measure
+d1.5_safe_passage <- create_measure(safe_passage, m1.5_safe_passage) %>%
+  group_by(GEOID) %>%
+  summarize(m1.5_safe_passage = sum(m1.5_safe_passage)) %>%
+  ungroup()
+
+mapview(safe_passage)
+
+create_ggplot(d1.5_safe_passage, m1.5_safe_passage, 
+              "Indicator 1.5: Share of Census Tract Located in Safe Passage Area",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d1.5_safe_passage, m1.5_safe_passage, 
+              "Indicator 1.5: Histogram of Census Tract Values",
+              "Share of census tract located in a Safe Passage Area")
+
+
+```
+
+
+## Indicator 6: Proximity to libraries
+
+This indicator considers proximity to libraries in the District of Columbia. Data are read in from Open Data DC.
+
+* [Libraries](https://opendata.dc.gov/datasets/cab0eaaad4e242c18a36422c3323e6ac/explore)
+
+**Data Measure**: Share of census tract within a 15-minute walk of a library
+
+```{r driver1.6, echo =  FALSE}
+
+## Indicator 1.6: Proximity to libraries
+
+library <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Cultural_and_Society_WebMercator/MapServer/4/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(NAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Library") 
+
+library_ors <- library %>%
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 15-minute walking distance
+library_boundary <- create_boundary(library_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d1.6_library <- create_measure(library_boundary, m1.6_library)
+
+# side by side map of points and walking distance boundaries
+create_mapview(library, library_boundary, "All Libraries (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d1.6_library, m1.6_library, 
+              "Indicator 1.6: Share within 15-Minute Walk to Libraries",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d1.6_library, m1.6_library, 
+              "Indicator 1.6: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to libraries")
+
+```
+
+## Indicator 7: Proximity to wireless hotspots 
+
+This indicator considers proximity to wireless hotspots in the District of Columbia. Data are read in from Open Data DC.
+
+* [Wireless Hotspots from DC Government](https://opendata.dc.gov/maps/0a73011064ae4580a4a8539de03060d1)
+
+**Data Measure**: Share of census tract within a 15-minute walk of a wireless hotspot
+
+```{r driver1.7, echo =  FALSE}
+
+## Indicator 1.7: Proximity to wireless hotspots
+
+wireless_hotspots <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Utility_and_Communication_WebMercator/MapServer/14/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(NAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Wireless Hotspots")
+
+wireless_hotspots_ors <- wireless_hotspots %>%
+  # remove problem lat-lon coordinates
+  filter(!NAME %in% c("The Peoples Building",
+                      "River Terrace Elementary School",
+                      "National Guard - D.C. Armory",
+                      "Greenleaf Gardens")) %>%
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct()
+
+# find the boundary of 15-minute walking distance
+wireless_hotspot_boundary <- create_boundary(wireless_hotspots_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d1.7_wireless_hotspot <- create_measure(wireless_hotspot_boundary, m1.7_wireless_hotspot)
+
+# side by side map of points and walking distance boundaries
+create_mapview(wireless_hotspots, wireless_hotspot_boundary, "All Wireless Hotspots (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d1.7_wireless_hotspot, m1.7_wireless_hotspot, 
+              "Indicator 1.7: Share within 15-Minute Walk to Wireless Hotspots",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d1.7_wireless_hotspot, m1.7_wireless_hotspot, 
+              "Indicator 1.7: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to wireless hotspots")
+
+
+```
+
+## Indicator 8: Access to broadband internet
+
+This indicator considers access to broadband internet in the District of Columbia. Data are read in from the 5-year 2017-2021 American Community Survey.
+
+* 2017-2021 5-year ACS: Households with a broadband internet subscription (read in via the tidycensus package)
+
+**Data Measure**: Share of households in the census tract with a broadband internet subscription
+
+```{r driver1.8, echo =  FALSE}
+
+## Indicator 1.8: Access to broadband internet
+
+broadband_share <- get_acs(
+  geography = "tract",
+  state = "DC",
+  year = 2021,
+  variables = c(
+    total_broadband = "B28002_001",
+    broadband = "B28002_004"
+  ),
+  geometry = TRUE,
+  progress_bar = FALSE
+) %>%
+  select(-NAME, -moe) %>%
+  pivot_wider(
+    names_from = "variable",
+    values_from = "estimate"
+  ) %>%
+  mutate(m1.8_broadband = case_when(total_broadband != 0 ~ broadband / total_broadband,
+                            total_broadband == 0 ~ NA_real_)) %>%
+  select(-total_broadband, -broadband) %>%
+  st_drop_geometry()
+
+d1.8_broadband <- dc_tracts %>%
+  select(GEOID) %>%
+  st_drop_geometry() %>%
+  full_join(broadband_share, by = c("GEOID")) 
+
+set_urbn_defaults(style = "map")
+
+dc_tracts %>%
+    full_join(d1.8_broadband, by = c("GEOID")) %>%
+    ggplot() + 
+    geom_sf(aes(fill = m1.8_broadband)) + 
+    scale_fill_gradientn(
+      labels = scales::percent_format(),
+      name = NULL,
+      breaks=c(0,0.25,0.5,0.75,1),
+      limits=c(0,1),
+      na.value = "#d2d2d2"
+      ) + 
+    geom_sf(data = dc_wards, color = "white", fill = "transparent", linewidth = 1) +
+    theme(legend.direction = "vertical", legend.box = "vertical",
+          plot.caption = element_markdown(hjust = 0)) + 
+    ggtitle("Indicator 1.8: Share with Broadband Internet Access") + 
+    labs(caption = paste("**Source:**", "2017-2021 5-year ACS"))
+
+# histogram of created measure
+create_histogram(d1.8_broadband, m1.8_broadband, 
+              "Indicator 1.8: Histogram of Census Tract Values",
+              "Share of census tract with broadband internet access")
+
+
+```
+
+
+## Indicator 9: Proximity to recreation centers
+
+This indicator considers proximity to recreation centers in the District of Columbia. Data are read in from Open Data DC.
+
+* [Recreation Facilities](https://opendata.dc.gov/datasets/DCGIS::recreation-facilities-1/explore)
+
+**Data Measure**: Share of census tract within a 15-minute walk of a recreation facility
+
+```{r driver1.9, echo =  FALSE}
+
+## Indicator 1.9: Proximity to recreation centers 
+
+recreation_centers <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Recreation_WebMercator/MapServer/3/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  mutate(coordinates = st_coordinates(geometry),
+         LATITUDE = coordinates[, "Y"], 
+         LONGITUDE = coordinates[, "X"]) %>%
+  select(NAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Recreation Centers") 
+
+recreation_centers_ors <- recreation_centers %>%
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 15-minute walking distance
+recreation_center_boundary <- create_boundary(recreation_centers_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d1.9_recreation_center <- create_measure(recreation_center_boundary, m1.9_recreation_center)
+
+# side by side map of points and walking distance boundaries
+create_mapview(recreation_centers, recreation_center_boundary, "All Recreation Centers (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d1.9_recreation_center, m1.9_recreation_center, 
+              "Indicator 1.9: Share within 15-Minute Walk to Recreation Center",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d1.9_recreation_center, m1.9_recreation_center, 
+              "Indicator 1.9: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to recreation center")
+
+```
+
+
+## Driver 1 Summary Statistics
+
+```{r driver 1 summary, echo =  FALSE}
+
+d1.1_schools %>%
+  left_join(d1.2_quality, by= "GEOID") %>%
+  left_join(d1.3_playgrounds, by= "GEOID") %>%
+  left_join(d1.4_crossing_guards, by= "GEOID") %>%
+  left_join(d1.5_safe_passage, by= "GEOID") %>%
+  left_join(d1.6_library, by= "GEOID") %>%
+  left_join(d1.7_wireless_hotspot, by= "GEOID") %>%
+  left_join(d1.8_broadband, by= "GEOID") %>%
+  left_join(d1.9_recreation_center, by= "GEOID") %>%
+  # pivot longer so can do summary stats by measure
+  pivot_longer(
+    cols = m1.1_schools:m1.9_recreation_center,
+    names_to = "id",
+    values_to = "value"
+  ) %>%
+  group_by(id) %>%
+  summarize(min = min(value, na.rm = TRUE),
+            max = max(value, na.rm = TRUE),
+            p25 = quantile(value, 0.25, na.rm = TRUE),
+            p50 = quantile(value, 0.50, na.rm = TRUE),
+            p75 = quantile(value, 0.75, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(indicator = case_when(id == "m1.1_schools" ~ "1.1: Share of census tract within 15-minute walk to schools",
+                               id == "m1.2_quality" ~ "1.2: Share of census tract within 15-minute walk to modernized schools",
+                               id == "m1.3_playgrounds" ~ "1.3: Share of census tract within 10-minute walk to playgrounds",
+                               id == "m1.4_crossing_guards" ~ "1.4: Share of census tract within 2-minute walk to crossing guards",
+                               id == "m1.5_safe_passage" ~ "1.5: Share of census tract in a Safe Passage area",
+                               id == "m1.6_library" ~ "1.6: Share of census tract within 15-minute walk to libraries",
+                               id == "m1.7_wireless_hotspot" ~ "1.7: Share of census tract within 15-minute walk to a wireless hotspot",
+                               id == "m1.8_broadband" ~ "1.8: Share of households in census tract with a broadband internet subscription",
+                               id == "m1.9_recreation_center" ~ "1.9: Share of census tract within 15-minute walk to recreation facilities")) %>%
+  select(indicator, min, max, p25, p50, p75) %>%
+  gt() %>%
+  cols_label(
+    indicator = md("**Indicator**"),
+    min = md("**Lowest value**"),
+    max = md("**Highest value**"),
+    p25 = md("**25th percentile**"),
+    p50 = md("**Median**"),
+    p75 = md("**75th percentile**")
+  ) %>%
+  opt_table_font(font = "Lato") %>%
+  tab_options(table.font.size = 11) %>%
+  cols_align(align = "center", columns = everything()) %>%
+  fmt_percent(columns = min:p75, decimals = 1) %>%
+  tab_header(md("**Driver 1: Summary of Indicators Across Census Tracts**")) %>%
+  gt::data_color(columns = min, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = max, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p25, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p50, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p75, colors = "ggsci::blue_material")
+ 
+
+```
+
+
+
+# Driver 2: Employment
+
+Driver 2: Employment is composed of just one indicator with 100% weight.
+
+* **Indicator 1: Travel time to work**: 100%
+
+## Indicator 1: Travel time to work
+
+This indicator considers travel time to work in the District of Columbia. Data are read in from the 2017-2021 5-year American Community Survey.
+
+* 2017-2021 5-year ACS: Commuting Characteristics (read in via the tidycensus package)
+
+**Data Measure**: Share of households in the census tract whose travel time to work is under 45 minutes
+
+```{r driver2.1, echo =  FALSE}
+
+### DRIVER 2: EMPLOYMENT
+
+## Indicator 2.1: Travel time to work
+
+time_to_work <- get_acs(
+  geography = "tract",
+  state = "DC",
+  year = 2021,
+  variables = c(
+    trans_total = "B08134_001",
+    trans_less_10 = "B08134_002",
+    trans_10_14 = "B08134_003",
+    trans_15_19 = "B08134_004",
+    trans_20_24 = "B08134_005",
+    trans_25_29 = "B08134_006",
+    trans_30_34 = "B08134_007",
+    trans_35_44 = "B08134_008",
+    trans_45_59 = "B08134_009",
+    trans_60_more = "B08134_010"
+  ),
+  geometry = TRUE,
+  progress_bar = FALSE
+) %>%
+  select(-NAME, -moe) %>%
+  pivot_wider(
+    names_from = "variable",
+    values_from = "estimate"
+  ) %>%
+  mutate(check_total = trans_less_10 + trans_10_14 + trans_15_19 + trans_20_24 + trans_25_29 + trans_30_34 + trans_35_44 + trans_45_59 + trans_60_more) %>%
+  select(-check_total) %>%
+  mutate(share_travel_under_45 = (trans_less_10 + trans_10_14 + trans_15_19 + trans_20_24 + trans_25_29 + trans_30_34 + trans_35_44) / trans_total) %>%
+  filter(share_travel_under_45 != 0) %>%
+  select(-trans_total, -trans_less_10, -trans_10_14, -trans_15_19, -trans_20_24, -trans_25_29, -trans_30_34, -trans_35_44, -trans_45_59, -trans_60_more) %>%
+  st_drop_geometry() %>%
+  rename(m2.1_commute = share_travel_under_45)
+
+d2.1_commute <- dc_tracts %>%
+  select(GEOID) %>%
+  st_drop_geometry() %>%
+  full_join(time_to_work, by = c("GEOID"))
+
+set_urbn_defaults(style = "map")
+
+dc_tracts %>%
+    full_join(d2.1_commute, by = c("GEOID")) %>%
+    ggplot() + 
+    geom_sf(aes(fill = m2.1_commute)) + 
+    scale_fill_gradientn(
+      labels = scales::percent_format(),
+      name = NULL,
+      breaks=c(0,0.25,0.5,0.75,1),
+      limits=c(0,1),
+      na.value = "#d2d2d2"
+      ) + 
+    geom_sf(data = dc_wards, color = "white", fill = "transparent", linewidth = 1) +
+    theme(legend.direction = "vertical", legend.box = "vertical",
+          plot.caption = element_markdown(hjust = 0)) + 
+    ggtitle("Indicator 2.1: Share with Commute Less than 45 Minutes") + 
+    labs(caption = paste("**Source:**", "2017-2021 5-year ACS"))
+
+# histogram of created measure
+create_histogram(d2.1_commute, m2.1_commute, 
+              "Indicator 2.1: Histogram of Census Tract Values",
+              "Share of census tract with commute less than 45 minutes")
+
+```
+
+## Driver 2 Summary Statistics
+
+```{r driver 2 summary, echo =  FALSE}
+
+d2.1_commute %>%
+  # pivot longer so can do summary stats by measure
+  pivot_longer(
+    cols = m2.1_commute,
+    names_to = "id",
+    values_to = "value"
+  ) %>%
+  group_by(id) %>%
+  summarize(min = min(value, na.rm = TRUE),
+            max = max(value, na.rm = TRUE),
+            p25 = quantile(value, 0.25, na.rm = TRUE),
+            p50 = quantile(value, 0.50, na.rm = TRUE),
+            p75 = quantile(value, 0.75, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(indicator = case_when(id == "m2.1_commute" ~ "2.1: Share of census tract with commute less than 45 minutes")) %>%
+  select(indicator, min, max, p25, p50, p75) %>%
+  gt() %>%
+  cols_label(
+    indicator = md("**Indicator**"),
+    min = md("**Lowest value**"),
+    max = md("**Highest value**"),
+    p25 = md("**25th percentile**"),
+    p50 = md("**Median**"),
+    p75 = md("**75th percentile**")
+  ) %>%
+  opt_table_font(font = "Lato") %>%
+  tab_options(table.font.size = 11) %>%
+  cols_align(align = "center", columns = everything()) %>%
+  fmt_percent(columns = min:p75, decimals = 1) %>%
+  tab_header(md("**Driver 2: Summary of Indicators Across Census Tracts**"))
+
+```
+
+
+# Driver 3: Income
+
+Driver 3: Income is composed of the following indicators with the listed weights.
+
+* **Indicator 1: Proximity to banking institutions**: 50%
+* **Indicator 2: Proximity to cash checking institutions**: 50%
+
+## Indicator 1: Proximity to banking institutions
+
+This indicator considers proximity to banking institutions in the District of Columbia and treats different banking institution types equally. Data are read in from Open Data DC.
+
+* [Bank Locations](https://opendata.dc.gov/datasets/dfc51a5bd29347d0a2399743d3144d31_0/explore)
+* [Non-Depository Banks](https://opendata.dc.gov/datasets/3d692f575b624acab4605699aa65973c_7/explore)
+* [ATM Banking](https://opendata.dc.gov/maps/5555b90602a94d9c85d63ee62a860c6e)
+* [Credit Unions](https://opendata.dc.gov/maps/b2420c4873bf4fd585caa334b246ddef)
+
+**Data Measure**: Share of census tract within a 15-minute walk of a bank, non-depository bank, ATM, or credit union
+
+```{r driver3.1, echo =  FALSE}
+
+### DRIVER 3: INCOME
+
+## Indicator 3.1: Proximity to banking institutions/financial literacy orgs
+
+banks <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Business_Goods_and_Service_WebMercator/MapServer/0/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(NAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Banks") 
+
+non_depository <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Business_Goods_and_Service_WebMercator/MapServer/7/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(NAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Non-Depository Banks") 
+
+atm <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Business_Goods_and_Service_WebMercator/MapServer/31/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  mutate(coordinates = st_coordinates(geometry),
+         LATITUDE = coordinates[, "Y"], 
+         LONGITUDE = coordinates[, "X"]) %>%
+  select(NAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "ATMs") 
+
+credit_unions <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Business_Goods_and_Service_WebMercator/MapServer/37/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(NAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Credit Unions") 
+
+# create combined dataframe
+all_banks <- banks %>%
+  rbind(non_depository, atm, credit_unions)
+
+all_banks_ors <- all_banks %>%
+  # remove problem lat-lon
+  filter(!(ADDRESS == "600 MARYLAND AVENUE SW" & NAME == "Wells Fargo")) %>%
+  filter(!(NAME == "Wright Patman Congressional Federal Credit Union" & ADDRESS == "50 INDEPENDENCE AVENUE SW")) %>%
+  filter(!(NAME == "Library Of Congress Federal Credit Union" & ADDRESS == "101 INDEPENDENCE AVENUE SE")) %>%
+  filter(!(NAME == "State Department Federal Credit Union" & ADDRESS == "103 3RD AVENUE SW")) %>%
+  filter(!(NAME == "Bank Fund Staff Federal Credit Union" & ADDRESS == "1725 I STREET NW")) %>%
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 15-minute walking distance
+banks_boundary <- create_boundary(all_banks_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d3.1_banks <- create_measure(banks_boundary, m3.1_banks)
+
+# side by side map of points and walking distance boundaries
+create_mapview(all_banks, banks_boundary, "All Banks (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d3.1_banks, m3.1_banks, 
+              "Indicator 3.1: Share within 15-Minute Walk to Banking Institutions",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d3.1_banks, m3.1_banks, 
+              "Indicator 3.1: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to banking institutions")
+
+
+```
+
+## Indicator 2: Proximity to check cashing places
+
+This indicator considers proximity to check cashing places in the District of Columbia. Data are read in from Open Data DC.
+
+* [Check Cashing Locations](https://opendata.dc.gov/datasets/DCGIS::check-cashing-locations/about)
+
+**Data Measure**: Share of census tract within a 15-minute walk of a check cashing place
+
+```{r driver3.2, echo =  FALSE}
+
+## Indicator 3.2: Proximity to check cashing places (negative correlation)
+
+check_cashing <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Business_Goods_and_Service_WebMercator/MapServer/1/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(NAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Check Cashing") 
+
+check_cashing_ors <- check_cashing %>%
+  # remove problem lat-lon
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 15-minute walking distance
+check_cashing_boundary <- create_boundary(check_cashing_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d3.2_check_cashing <- create_measure(check_cashing_boundary, m3.2_check_cashing)
+
+# side by side map of points and walking distance boundaries
+create_mapview(check_cashing, check_cashing_boundary, "All Check Cashing (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d3.2_check_cashing, m3.2_check_cashing, 
+              "Indicator 3.2: Share within 15-Minute Walk to Check Cashing Places",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d3.2_check_cashing, m3.2_check_cashing, 
+              "Indicator 3.2: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to check cashing places")
+
+```
+
+## Driver 3 Summary Statistics
+
+```{r driver 3 summary, echo =  FALSE}
+
+d3.1_banks %>%
+  left_join(d3.2_check_cashing, by= "GEOID") %>%
+  # pivot longer so can do summary stats by measure
+  pivot_longer(
+    cols = m3.1_banks:m3.2_check_cashing,
+    names_to = "id",
+    values_to = "value"
+  ) %>%
+  group_by(id) %>%
+  summarize(min = min(value, na.rm = TRUE),
+            max = max(value, na.rm = TRUE),
+            p25 = quantile(value, 0.25, na.rm = TRUE),
+            p50 = quantile(value, 0.50, na.rm = TRUE),
+            p75 = quantile(value, 0.75, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(indicator = case_when(id == "m3.1_banks" ~ "3.1: Share of census tract within 15-minute walk to banking institutions",
+                               id == "m3.2_check_cashing" ~ "3.2: Share of census tract within 15-minute walk to check cashing places")) %>%
+  select(indicator, min, max, p25, p50, p75) %>%
+  gt() %>%
+  cols_label(
+    indicator = md("**Indicator**"),
+    min = md("**Lowest value**"),
+    max = md("**Highest value**"),
+    p25 = md("**25th percentile**"),
+    p50 = md("**Median**"),
+    p75 = md("**75th percentile**")
+  ) %>%
+  opt_table_font(font = "Lato") %>%
+  tab_options(table.font.size = 11) %>%
+  cols_align(align = "center", columns = everything()) %>%
+  fmt_percent(columns = min:p75, decimals = 1) %>%
+  tab_header(md("**Driver 3: Summary of Indicators Across Census Tracts**")) %>%
+  gt::data_color(columns = min, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = max, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p25, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p50, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p75, colors = "ggsci::blue_material")
+ 
+
+```
+
+# Driver 4: Housing
+
+Driver 4: Housing is composed of the following indicators with the listed weights.
+
+* **Indicator 1: Housing stock quality**: 25%
+* **Indicator 2: Share of homes built since 1970**: 25%
+* **Indicator 3: Distribution of affordable housing**: 25%
+* **Indicator 4: Proximity to vacant or blighted houses**: 25%
+
+## Indicator 1: Housing stock quality
+
+This indicator considers housing stock quality in the District of Columbia. Data are read in from Open Data DC.
+
+* [Computer Assisted Mass Appraisal - Commercial](https://opendata.dc.gov/datasets/DCGIS::computer-assisted-mass-appraisal-commercial/about)
+* [Computer Assisted Mass Appraisal - Residential](https://opendata.dc.gov/datasets/DCGIS::computer-assisted-mass-appraisal-residential/about)
+
+**Data Measure**: Share of census tract's commercial buildings that are of Good+, Very Good, Very Good +, or Excellent grade and residential homes that are of Very Good, Excellent, Superior, Exceptional-A, Exceptional-B, Exceptional-C, or Exceptional-D grade AND in Good, Very Good, or Excellent condition
+
+```{r driver4.1, echo =  FALSE}
+
+
+### DRIVER 4: HOUSING
+
+## Indicator 4.1: Housing stock quality
+
+# SSL
+ssl <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Property_and_Land_WebMercator/MapServer/41/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE)
+
+# Commercial data
+commercial <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Property_and_Land_WebMercator/MapServer/23/query?where=1%3D1&outFields=*&outSR=4326&f=json", quiet = TRUE) %>%
+  # get Square from SSL code
+  mutate(SQUARE = substr(SSL, 1, 4)) %>%
+  # join square boundaries
+  left_join(ssl, by = "SQUARE") %>%
+  filter(!is.na(OBJECTID.y)) %>%
+  filter(!is.na(GRADE_D)) %>%
+  # now cut down on columns
+  select(GRADE_D, LANDAREA, geometry) %>%
+  st_as_sf() %>%
+  st_transform(crs = 6487) %>%
+  st_join(dc_tracts) %>%
+  st_drop_geometry() %>%
+  group_by(GEOID) %>%
+  summarize(commercial_all = sum(LANDAREA),
+            commercial_good_above = sum(LANDAREA[GRADE_D %in% c("Good +", "Very Good", "Very Good +", "Excellent")])) %>%
+  ungroup()
+
+# residential
+residential <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Property_and_Land_WebMercator/MapServer/25/query?where=1%3D1&outFields=*&outSR=4326&f=json", quiet = TRUE) %>%
+  # get Square from SSL code
+  mutate(SQUARE = substr(SSL, 1, 4)) %>%
+  # join square boundaries
+  left_join(ssl, by = "SQUARE") %>%
+  filter(!is.na(OBJECTID.y)) %>%
+  filter(!is.na(GRADE_D)) %>%
+  filter(GRADE_D != "No Data") %>%
+  filter(!is.na(CNDTN_D)) %>%
+  # now cut down on columns
+  select(GRADE_D, CNDTN_D, LANDAREA, geometry) %>%
+  st_as_sf() %>%
+  st_make_valid() %>%
+  st_transform(crs = 6487) %>%
+  st_join(dc_tracts) %>%
+  st_drop_geometry() %>%
+  group_by(GEOID) %>%
+  summarize(residential_all = sum(LANDAREA),
+            residential_good_above = sum(LANDAREA[GRADE_D %in% c("Very Good", "Excellent", "Superior",
+                                                                 "Exceptional-A", "Exceptional-B",
+                                                                 "Exceptional-C", "Exceptional-D") & 
+                                                    CNDTN_D %in% c("Good", "Very Good", "Excellent")])) %>%
+  ungroup()
+
+# create measure
+d4.1_quality <- dc_tracts %>%
+  left_join(commercial, by = "GEOID") %>%
+  left_join(residential, by = "GEOID") %>%
+  select(GEOID, commercial_all, commercial_good_above, residential_all, residential_good_above) %>%
+  st_drop_geometry() %>%
+  # create measure
+  mutate(m4.1_quality = case_when(!is.na(commercial_all) & !is.na(residential_all) ~ (commercial_good_above + residential_good_above) / (commercial_all + residential_all),
+                                  is.na(commercial_all) & !is.na(residential_all) ~ residential_good_above / residential_all,
+                                  !is.na(commercial_all) & is.na(residential_all) ~ commercial_good_above / commercial_all,
+                                  TRUE ~ NA_integer_)) %>%
+  select(GEOID, m4.1_quality)
+
+set_urbn_defaults(style = "map")
+
+dc_tracts %>%
+    full_join(d4.1_quality, by = c("GEOID")) %>%
+    ggplot() +
+    geom_sf(aes(fill = m4.1_quality)) +
+    scale_fill_gradientn(
+      labels = scales::percent_format(),
+      name = NULL,
+      breaks=c(0,0.25,0.5,0.75,1),
+      limits=c(0,1),
+      na.value = "#d2d2d2"
+      ) +
+    geom_sf(data = dc_wards, color = "white", fill = "transparent", linewidth = 1) +
+    theme(legend.direction = "vertical", legend.box = "vertical",
+          plot.caption = element_markdown(hjust = 0)) +
+    ggtitle("Indicator 4.1: Housing Stock Quality") +
+    labs(caption = paste("**Source:**", "Open Data DC"))
+
+# histogram of created measure
+create_histogram(d4.1_quality, m4.1_quality, 
+              "Indicator 4.1: Histogram of Census Tract Values",
+              "Share of census tract commercial and residential buildings with good or better housing quality")
+
+```
+
+## Indicator 2: Share of homes built since 1970
+
+This indicator considers share of homes built since 1970 in the District of Columbia. Data are read in from the 2017-2021 5-year American Community Survey.
+
+* 2017-2021 5-year ACS: Year structure built (read in via the tidycensus package)
+
+**Data Measure**: Share of census tract's homes (renter- and owner-occupied) built since 1970
+
+```{r driver4.2, echo =  FALSE}
+
+## Indicator 4.2: Share of homes built since 1970
+
+share_since_1970 <- get_acs(
+  geography = "tract",
+  state = "DC",
+  year = 2021,
+  variables = c(
+    total = "B25034_001",
+    num_2020_later = "B25034_002",
+    num_2010_2019 = "B25034_003",
+    num_2000_2009 = "B25034_004",
+    num_1990_1999 = "B25034_005",
+    num_1980_1989 = "B25034_006",
+    num_1970_1979 = "B25034_007",
+    num_1960_1969 = "B25034_008",
+    num_1950_1959 = "B25034_009",
+    num_1940_1949 = "B25034_010",
+    num_1939_earlier = "B25034_011"
+  ),
+  geometry = TRUE,
+  progress_bar = FALSE
+) %>%
+  select(-NAME, -moe) %>%
+  pivot_wider(
+    names_from = "variable",
+    values_from = "estimate"
+  ) %>%
+  mutate(share_since_1970 = case_when(total != 0 ~ (num_2020_later + num_2010_2019 + num_2000_2009 + num_1990_1999 + num_1980_1989 + num_1970_1979) / total,
+                                      total == 0 ~ NA_real_)) %>%
+  #filter(share_since_1970 != 0) %>%
+  select(-total:-num_1939_earlier) %>%
+  rename(m4.2_share_since_1970 = share_since_1970)
+
+d4.2_share_since_1970 <- share_since_1970 %>%
+  st_drop_geometry()
+
+set_urbn_defaults(style = "map")
+
+dc_tracts %>%
+    full_join(d4.2_share_since_1970, by = c("GEOID")) %>%
+    ggplot() + 
+    geom_sf(aes(fill = m4.2_share_since_1970)) + 
+    scale_fill_gradientn(
+      labels = scales::percent_format(),
+      name = NULL,
+      breaks=c(0,0.25,0.5,0.75,1),
+      limits=c(0,1),
+      na.value = "#d2d2d2"
+      ) + 
+    geom_sf(data = dc_wards, color = "white", fill = "transparent", linewidth = 1) +
+    theme(legend.direction = "vertical", legend.box = "vertical",
+          plot.caption = element_markdown(hjust = 0)) + 
+    ggtitle("Indicator 4.2: Share of Housing Structures in the Census Tract\nBuilt Since 1970") + 
+    labs(caption = paste("**Source:**", "2017-2021 5-year ACS"))
+
+# histogram of created measure
+create_histogram(d4.2_share_since_1970, m4.2_share_since_1970, 
+              "Indicator 4.2: Histogram of Census Tract Values",
+              "Share of census tract homes built since 1970")
+
+```
+
+
+## Indicator 3: Distribution of affordable housing
+
+This indicator considers availability of affordable housing in the District of Columbia. Data are read in from the 2017-2021 5-year American Community Survey as well as from Open Data DC.
+
+* 2017-2021 5-year ACS: Number of housing units (read in via the tidycensus package)
+* [Affordable Housing](https://opendata.dc.gov/datasets/DCGIS::affordable-housing/about): Affordable housing production and preservation projects in the District of Columbia (uses field TOTAL_AFFORDABLE_UNITS for number of affordable units)
+
+**Data Measure**: Share of census tract's homes (renter- and owner-occupied) that are affordable
+
+```{r driver4.3, echo =  FALSE}
+
+## Indicator 4.3: Distribution of affordable housing
+
+affordable_housing <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Property_and_Land_WebMercator/MapServer/62/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  st_transform(crs = 6487) %>%
+# append census tract boundaries
+  st_join(dc_tracts, join = st_intersects) %>%
+  st_drop_geometry() %>%
+  select(GEOID, TOTAL_AFFORDABLE_UNITS) %>%
+  group_by(GEOID) %>%
+  summarize(TOTAL_AFFORDABLE_UNITS = sum(TOTAL_AFFORDABLE_UNITS)) %>%
+  ungroup()
+
+# get housing unit count from ACS
+num_housing_units <- get_acs(
+  geography = "tract",
+  state = "DC",
+  year = 2021,
+  variables = c(
+    tot_housing_units = "B25001_001"
+  ),
+  geometry = TRUE,
+  progress_bar = FALSE
+) %>%
+  select(-NAME, -moe) %>%
+  pivot_wider(
+    names_from = "variable",
+    values_from = "estimate"
+  ) %>%
+  st_drop_geometry() 
+
+d4.3_affordable <- num_housing_units %>%
+  full_join(affordable_housing, by = c("GEOID")) %>%
+  mutate(TOTAL_AFFORDABLE_UNITS = replace_na(TOTAL_AFFORDABLE_UNITS,0),
+         m4.3_affordable = case_when(tot_housing_units != 0 ~ TOTAL_AFFORDABLE_UNITS / tot_housing_units,
+                                      tot_housing_units == 0 ~ NA_real_),
+         m4.3_affordable = case_when(m4.3_affordable > 1 ~ 1,
+                                      TRUE ~ m4.3_affordable)) %>%
+  select(GEOID, m4.3_affordable)
+
+set_urbn_defaults(style = "map")
+
+dc_tracts %>%
+    full_join(d4.3_affordable, by = c("GEOID")) %>%
+    ggplot() + 
+    geom_sf(aes(fill = m4.3_affordable)) + 
+    scale_fill_gradientn(
+      labels = scales::percent_format(),
+      name = NULL,
+      breaks=c(0,0.25,0.5,0.75,1),
+      limits=c(0,1),
+      na.value = "#d2d2d2"
+      ) + 
+    geom_sf(data = dc_wards, color = "white", fill = "transparent", linewidth = 1) +
+    theme(legend.direction = "vertical", legend.box = "vertical",
+          plot.caption = element_markdown(hjust = 0)) + 
+    ggtitle("Indicator 4.3: Share of Homes that Are Affordable") + 
+    labs(caption = paste("**Source:**", "2017-2021 5-year ACS, Open Data DC"))
+
+# histogram of created measure
+create_histogram(d4.3_affordable, m4.3_affordable, 
+              "Indicator 4.3: Histogram of Census Tract Values",
+              "Share of census tract homes that are affordable")
+
+```
+
+## Indicator 4: Proximity to vacant or blighted houses
+
+This indicator considers proximity to vacant or blighted houses in the District of Columbia. Data are read in from the Department of Building's (DOB's) Public Dashboard.
+
+* [DOB Public Dashboard: Vacant Properties](https://dataviz1.dc.gov/t/OCTO/views/DOBPublicDashboard/VacantProperties?%3AshowAppBanner=false&%3Adisplay_count=n&%3AshowVizHome=n&%3Aorigin=viz_share_link&%3Aembed=yes&%3Atoolbar=no)
+
+Only addresses categorized as the following in the "Last Confirmed Vacant Status" column are considered. 
+
+* Blighted
+* Blighted w/Violations
+* Registered - Blighted
+* Registered - Vacant
+* Unregistered - Blighted
+* Unregistered - Vacant
+* Vacant
+* Vacant v/Violations
+
+The dataset was uploaded to [OCTO's Master Address Repository](https://mar2.data.dc.gov/batch-geocode) to obtain latitude-longitude coordinates for those addresses. Only those addresses with a 92% match score or higher (as recommended by OCTO) were included in the analysis.
+
+**Data Measure**: Share of census tract within a 2-minute walk of a vacant or blighted house
+
+```{r driver4.4, echo =  FALSE}
+
+## Indicator 4.4: Vacancies/blighted houses 
+
+#read in data from DOB dashboard
+vacant_building_blighted <- read.csv("C:/Hacktoberfest/Data/1.Export Data to Excel 05132024.csv") %>%
+  janitor::clean_names() %>%
+  # only keep vacant lots
+  filter(status %in% c("VACANT BUILDINGS", "VACANT BLIGHTED")) %>%
+  # only select a few statuses
+  filter(last_confirmed_vacant_status %in% c("Blighted", "Blighted w/Violations",
+                                             "Registered - Blighted", "Registered - Vacant",
+                                             "Unregistered - Blighted", "Unregistered - Vacant",
+                                             "Vacant", "Vacant w/Violations")) %>%
+  mutate(ID = row_number()) %>%
+  rename(type = status) %>%
+  select(ID, type, address)
+# 
+# for_MAR_4_4 <- vacant_building_blighted %>%
+#   # keep address and run through MAR
+#   select(ID,
+#          ADDRESS = address) %>%
+#   mutate(CITY = "WASHINGTON",
+#          STATE = "DC",
+#          ZIPCODE = NA_character_)
+# 
+# # run through OCTO's MAR
+# write.csv(for_MAR_4_4, "C:/Hacktoberfest/Output/for_MAR_4_4.csv", row.names = FALSE, na = "")
+
+# read in OCTO MAR output and use recommended match score threshold of 92% or higher
+from_MAR_4_4 <- read.xlsx("C:/Hacktoberfest/Output/for_MAR_4_4_Geocoded.xlsx",
+                          sheet = "data") %>%
+  filter(MAR_SCORE >= 92) %>%
+  # keep only vars needed to merge back to original
+  select(ADDRESS, LATITUDE = MAR_LATITUDE, LONGITUDE = MAR_LONGITUDE, ID) %>%
+  rename(NAME = ADDRESS) %>%
+  mutate(ID = as.numeric(ID)) %>%
+  left_join(vacant_building_blighted, by = "ID") %>%
+  # remove places that fail in ORS call
+  # convert into an sf object
+  mutate(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+
+vacant_buildings_ors <- from_MAR_4_4 %>%
+  # remove problem lat-lon
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates
+  distinct()
+
+# find the boundary of 2-minute walking distance
+vacant_buildings_boundary <- create_boundary(vacant_buildings_ors, two_min)
+
+# create share of census tract within walking distance measure
+d4.4_vacant_buildings <- create_measure(vacant_buildings_boundary, m4.4_vacant_buildings)
+
+# side by side map of points and walking distance boundaries
+create_mapview(from_MAR_4_4, vacant_buildings_boundary, "Vacant Buildings (Layer 1) | 2-Min Walking Distance Boundaries (Layer 2)")
+
+# # create data export and read in below, so that won't have to go through ORS
+# write.csv(d4.4_vacant_buildings, "C:/Hacktoberfest/Output/d4.4_vacant_buildings.csv", row.names = FALSE)
+# 
+# # read in data to skip ORS
+# d4.4_vacant_buildings <- read.csv("C:/Hacktoberfest/Output/d4.4_vacant_buildings.csv") %>%
+#   mutate(GEOID = as.character(GEOID))
+
+# census tract map of created measure
+create_ggplot(d4.4_vacant_buildings, m4.4_vacant_buildings, 
+              "Indicator 4.4: Share within 2-Minute Walk of Vacant Buildings",
+              "DOB Public Dashboard: Vacant Properties (accessed 5/13/2024)")
+
+# histogram of created measure
+create_histogram(d4.4_vacant_buildings, m4.4_vacant_buildings, 
+              "Indicator 4.4: Histogram of Census Tract Values",
+              "Share of census tract within 2-minute walk of vacant buildings")
+
+```
+
+## Driver 4 Summary Statistics
+
+```{r driver 4 summary, echo =  FALSE}
+
+d4.1_quality %>%
+  left_join(d4.2_share_since_1970, by= "GEOID") %>%
+  left_join(d4.3_affordable, by= "GEOID") %>%
+  left_join(d4.4_vacant_buildings, by= "GEOID") %>%
+  # pivot longer so can do summary stats by measure
+  pivot_longer(
+    cols = m4.1_quality:m4.4_vacant_buildings,
+    names_to = "id",
+    values_to = "value"
+  ) %>%
+  group_by(id) %>%
+  summarize(min = min(value, na.rm = TRUE),
+            max = max(value, na.rm = TRUE),
+            p25 = quantile(value, 0.25, na.rm = TRUE),
+            p50 = quantile(value, 0.50, na.rm = TRUE),
+            p75 = quantile(value, 0.75, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(indicator = case_when(id == "m4.1_quality" ~ "4.1: Share of census tract commercial and residential buildings with good or better housing quality",
+                               id == "m4.2_share_since_1970" ~ "4.2: Share of census tract homes built since 1970",
+                               id == "m4.3_affordable" ~ "4.3: Share of census tract homes that are affordable",
+                               id == "m4.4_vacant_buildings" ~ "4.4: Share of census tract within 2-minute walk to vacant buildings")) %>%
+  select(indicator, min, max, p25, p50, p75) %>%
+  gt() %>%
+  cols_label(
+    indicator = md("**Indicator**"),
+    min = md("**Lowest value**"),
+    max = md("**Highest value**"),
+    p25 = md("**25th percentile**"),
+    p50 = md("**Median**"),
+    p75 = md("**75th percentile**")
+  ) %>%
+  opt_table_font(font = "Lato") %>%
+  tab_options(table.font.size = 11) %>%
+  cols_align(align = "center", columns = everything()) %>%
+  fmt_percent(columns = min:p75, decimals = 1) %>%
+  tab_header(md("**Driver 4: Summary of Indicators Across Census Tracts**")) %>%
+  gt::data_color(columns = min, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = max, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p25, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p50, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p75, colors = "ggsci::blue_material")
+
+
+```
+
+# Driver 5: Transportation
+
+Driver 5: Transportation is composed of the following indicators with the listed weights.
+
+* **Indicator 1: Proximity to Metro bus**: 16.5%
+* **Indicator 2: Proximity to Metro station**: 16.5%
+* **Indicator 3: Proximity to Capital Bikeshare locations**: 11.3%
+* **Indicator 4: Access to bike lanes**: 11.3%
+* **Indicator 5: Sidewalk quality**: 11.4%
+* **Indicator 6: Parking availability**: 33%
+
+## Indicator 1: Proximity to Metro bus
+
+This indicator considers proximity to Metro buses in the District of Columbia. It treats Metro bus, the DC Circulator, and DC Streetcar equally. Data are read in from Open Data DC.
+
+* [Metro Bus Stops](https://opendata.dc.gov/datasets/metro-bus-stops/explore)
+* [DC Streetcar Stops](https://opendata.dc.gov/maps/84c394c1eeda4e00996703bb99673190)
+* [DC Circulator Stops](https://opendata.dc.gov/datasets/DCGIS::dc-circulator-stops/about)
+
+**Data Measure**: Share of census tract within a 2-minute walk of a Metro bus stop, DC Streetcar stop, or DC Circulator stop
+
+```{r driver5.1, echo =  FALSE}
+
+### DRIVER 5: TRANSPORTATION
+
+## Indicator 5.1: Proximity to Metro bus
+
+bus_stops <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Transportation_Rail_Bus_WebMercator/MapServer/53/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  # remove bad lat lons
+  filter(WARD_ID %in% c(1, 2, 3, 4, 5, 6, 7, 8)) %>%
+  filter(EGIS_ID != 1308270) %>%
+  filter(EGIS_ID != 1311838) %>%
+   mutate(coordinates = st_coordinates(geometry),
+         LATITUDE = coordinates[, "Y"], 
+         LONGITUDE = coordinates[, "X"]) %>%
+  select(AT_STR, LATITUDE, LONGITUDE, GIS_ID) %>%
+  rename(NAME = AT_STR) %>%
+  mutate(type = "Bus Stop") 
+
+metro_station <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Transportation_Rail_Bus_WebMercator/MapServer/50/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  mutate(coordinates = st_coordinates(geometry),
+         LATITUDE = coordinates[, "Y"], 
+         LONGITUDE = coordinates[, "X"]) %>%
+  select(NAME, EXIT_TO_ST, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Metro Station") 
+
+dc_streetcar <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Transportation_Rail_Bus_WebMercator/MapServer/112/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(STOP, LATITUDE, LONGITUDE, GIS_ID) %>%
+  rename(NAME = STOP) %>%
+  mutate(type = "DC Streetcar") 
+
+dc_circulator <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Transportation_Rail_Bus_WebMercator/MapServer/54/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  mutate(coordinates = st_coordinates(geometry),
+         LATITUDE = coordinates[, "Y"], 
+         LONGITUDE = coordinates[, "X"]) %>%
+  select(STOP, LATITUDE, LONGITUDE, GIS_ID) %>%
+  rename(NAME = STOP) %>%
+  mutate(type = "DC Circulator") 
+
+all_buses <- bus_stops %>%
+  rbind(dc_streetcar, dc_circulator)
+
+all_buses_ors <- all_buses %>%
+  # remove problem lat-lon
+  # 1356. 1953, 3008, 3009, 3011, 3013, 3015, 3016, 3017, 3018, 3019
+  filter(!GIS_ID %in% c("BusStopPt_39604", "BusStopPt_43972", "StreetCarPt_1", "BusStopPt_44005",
+                          "StreetCarPt_4", "StreetCarPt_6", "StreetCarPt_8",
+                          "BusStopPt_37190", "StreetCarPt_10", "StreetCarPt_11",
+                          "StreetCarPt_12", "StreetCarPt_2", "StreetCarPt_9")) %>%
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 2-minute walking distance
+buses_boundary <- create_boundary(all_buses_ors, two_min)
+
+# create share of census tract within walking distance measure
+d5.1_buses <- create_measure(buses_boundary, m5.1_buses)
+
+# side by side map of points and walking distance boundaries
+create_mapview(all_buses, buses_boundary, "All Buses (Layer 1) | 2-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d5.1_buses, m5.1_buses, 
+              "Indicator 5.1: Share within 2-Minute Walk to Buses",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d5.1_buses, m5.1_buses, 
+              "Indicator 5.1: Histogram of Census Tract Values",
+              "Share of census tract within 2-minute walk to buses")
+
+
+```
+
+## Indicator 2: Proximity to Metro stations
+
+This indicator considers proximity to Metro station entrances in the District of Columbia. Data are read in from Open Data DC.
+
+* [Metro station entrances](https://opendata.dc.gov/datasets/metro-station-entrances-in-dc/explore)
+
+**Data Measure**: Share of census tract within a 15-minute walk of a Metro station entrance
+
+```{r driver5.2, echo =  FALSE}
+
+## Indicator 5.2: Proximity to Metro station entrances
+
+metro_ors <- metro_station %>%
+  # remove problem lat-lon
+  filter(!(NAME == "FOGGY BOTTOM-GWU" & EXIT_TO_ST == "NW CORNER OF 23RD STREET NW AND I STREET NW")) %>%
+  filter(!(NAME == "STADIUM-ARMORY" & EXIT_TO_ST == "NE CORNER OF 19TH STREET SE AND INDEPENDENCE AVENUE SE")) %>%
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 15-minute walking distance
+metro_boundary <- create_boundary(metro_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d5.2_metro <- create_measure(metro_boundary, m5.2_metro)
+
+# side by side map of points and walking distance boundaries
+create_mapview(metro_station, metro_boundary, "All Metro Stations (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d5.2_metro, m5.2_metro, 
+              "Indicator 5.2: Share within 15-Minute Walk to Metro Station",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d5.2_metro, m5.2_metro, 
+              "Indicator 5.2: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to Metro stations")
+
+```
+
+## Indicator 3: Proximity to Capital Bikeshare locations
+
+This indicator considers proximity to Capital Bikeshare locations in the District of Columbia. Data are read in from Open Data DC.
+
+* [Capital Bikeshare Locations](https://opendata.dc.gov/maps/a1f7acf65795451d89f0a38565a975b3)
+
+**Data Measure**: Share of census tract within a 5-minute walk of a Capital Bikeshare location
+
+```{r driver5.3, echo =  FALSE}
+
+
+## Indicator 5.3: Proximity to Capital Bikeshare locations
+
+capital_bikeshare <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Transportation_Bikes_Trails_WebMercator/MapServer/5/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(NAME, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Capital Bikeshare") 
+
+capital_bikeshare_ors <- capital_bikeshare %>%
+  # remove problem lat-lon
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  filter(NAME != "Wilson Blvd & N Uhle St") %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct()
+
+# find the boundary of 5-minute walking distance
+capital_bikeshare_boundary <- create_boundary(capital_bikeshare_ors, five_min)
+
+# create share of census tract within walking distance measure
+d5.3_capital_bikeshare <- create_measure(capital_bikeshare_boundary, m5.3_capital_bikeshare)
+
+# side by side map of points and walking distance boundaries
+create_mapview(capital_bikeshare, capital_bikeshare_boundary, "Capital Bikeshare Locations (Layer 1) | 5-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d5.3_capital_bikeshare, m5.3_capital_bikeshare, 
+              "Indicator 5.3: Share within 5-Minute Walk to Capital Bikeshare",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d5.3_capital_bikeshare, m5.3_capital_bikeshare, 
+              "Indicator 5.3: Histogram of Census Tract Values",
+              "Share of census tract within 5-minute walk to Capital Bikeshare")
+
+```  
+  
+
+## Indicator 4: Access to bike lanes
+
+This indicator considers access to bike lanes in the District of Columbia. Data are read in from Open Data DC.
+
+* [Bicycle Lanes](https://opendata.dc.gov/datasets/482ed4051575418caaae182a35c23cd7_2/explore)
+* [Roads](https://opendata.dc.gov/datasets/DCGIS::roads/about)
+
+The approach adds a buffer of 10 feet around bike lanes, intersects those bike lane 10-feet boundaries with census tract boundaries, and calculates total bike lane area for each census tract. It then calculates total road area for each census tract, and then divides total bike lane area by total road area to create the measure.
+
+**Data Measure**: Share of street area in the census tract that includes a bicycle lane
+
+```{r driver5.4, echo =  FALSE}
+
+
+## Indicator 5.4: Access to bike lanes
+
+# 10 feet buffer
+buffer_distance_10_feet <- units::set_units(10, "feet")
+buffer_distance_10_feet <- buffer_distance_10_feet %>%
+  units::set_units("meters")
+
+# intersect dc tracts and calculate bike lane area
+bike_lanes <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Transportation_Bikes_Trails_WebMercator/MapServer/2/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(ROUTENAME) %>%
+  rename(NAME = ROUTENAME) %>%
+  mutate(type = "Bike Lanes") %>%
+  st_transform(crs = 6487) %>%
+  # add buffer of 10 feet
+  st_buffer(buffer_distance_10_feet) %>%
+  st_intersection(dc_tracts) %>%
+  # calculate road area and sum to census tract 
+  mutate(bike_lane_area = st_area(geometry)) %>%
+  st_drop_geometry() %>%
+  group_by(GEOID) %>%
+  summarize(bike_lane_area = sum(bike_lane_area, na.rm = TRUE)) %>%
+  ungroup() %>%
+  filter(!is.na(GEOID)) 
+
+# intersect dc tracts and calculate road area
+roads <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Transportation_WebMercator/MapServer/61/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  # only want roads
+  filter(DESCRIPTION == "Road") %>%
+  st_transform(crs = 6487) %>%
+  st_intersection(dc_tracts) %>%
+  # calculate road area and sum to census tract 
+  mutate(road_area = st_area(geometry)) %>%
+  st_drop_geometry() %>%
+  group_by(GEOID) %>%
+  summarize(road_area = sum(road_area, na.rm = TRUE)) %>%
+  ungroup() %>%
+  filter(!is.na(GEOID)) 
+  
+# merge two dataframes together
+d5.4_bike_lanes <- roads %>%
+  left_join(bike_lanes, by = "GEOID") %>%
+  mutate(road_area = gsub("\\[.*\\]", "", road_area),
+         bike_lane_area = gsub("\\[.*\\]", "", bike_lane_area)) %>%
+  mutate(road_area = as.numeric(road_area),
+         bike_lane_area = as.numeric(bike_lane_area)) %>%
+  mutate(bike_lane_area = replace_na(bike_lane_area,0),
+         m5.4_bike_lanes = bike_lane_area / road_area) %>%
+  select(GEOID, m5.4_bike_lanes)
+
+create_ggplot(d5.4_bike_lanes, m5.4_bike_lanes, 
+              "Indicator 5.4: Share of Road Area Covered by Bike Lanes",
+              "Open Data DC")  
+
+# histogram of created measure
+create_histogram(d5.4_bike_lanes, m5.4_bike_lanes, 
+              "Indicator 5.4: Histogram of Census Tract Values",
+              "Share of census tract road area covered by bike lanes")    
+
+```  
+
+## Indicator 5: Sidewalk quality
+
+This indicator considers sidewalk quality in the District of Columbia, using 311 requests for sidewalk repair as a proxy. Data are read in from Open Data DC.
+
+* [311 City Service Requests in 2023](https://opendata.dc.gov/datasets/DCGIS::311-city-service-requests-in-2023/explore?showTable=true): Sidewalk repair
+* 2017-2021 5-year ACS: Total population (read in via the tidycensus package)
+
+**Data Measure**: Share of 311 calls made in the census tract that are for sidewalk repair 
+
+```{r driver5.5, echo =  FALSE}
+
+## Indicator 5.5: Sidewalk quality
+
+sidewalk_311 <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/ServiceRequests/MapServer/15/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE)
+
+d5.5_sidewalk_quality <- sidewalk_311 %>%
+  st_transform(crs = 6487) %>%
+  st_join(dc_tracts, join = st_intersects) %>%
+  st_drop_geometry() %>%
+  group_by(GEOID) %>%
+  summarize(count_sidewalk_repair = sum(SERVICECODEDESCRIPTION == "Sidewalk Repair", na.rm = TRUE),
+            count_all_311 = n()) %>%
+  ungroup() %>%
+  filter(!is.na(GEOID)) %>%
+  mutate(count_sidewalk_repair = replace_na(count_sidewalk_repair,0),
+         m5.5_sidewalk_quality = count_sidewalk_repair / count_all_311) %>%
+  select(GEOID, m5.5_sidewalk_quality)
+
+set_urbn_defaults(style = "map")
+
+dc_tracts %>%
+  full_join(d5.5_sidewalk_quality, by = c("GEOID")) %>%
+  ggplot() + 
+  geom_sf(aes(fill = m5.5_sidewalk_quality)) + 
+  geom_sf(data = dc_wards, color = "white", fill = "transparent", linewidth = 1) +
+  theme(legend.direction = "vertical", legend.box = "vertical",
+        plot.caption = element_markdown(hjust = 0)) +
+  scale_fill_gradientn(
+      name = NULL,
+      breaks=c(0,0.03,0.06,0.09,0.12),
+      limits=c(0,0.12),
+      na.value = "#d2d2d2"
+      ) + 
+  ggtitle("Indicator 5.5: Share of 311 Calls that are Sidewalk Repair Requests") + 
+  labs(caption = paste("**Source:**", "Open Data DC")) 
+
+# histogram of created measure
+create_histogram(d5.5_sidewalk_quality, m5.5_sidewalk_quality, 
+              "Indicator 5.5: Histogram of Census Tract Values",
+              "Share of census tract 311 calls that are sidewalk repair requests")    
+
+```  
+
+## Indicator 6: Parking availability 
+  
+This indicator considers parking availability in the District of Columbia. Data are read in from Open Data DC.
+
+* [Alleys and Parking](https://opendata.dc.gov/datasets/dc3dc5310f1f4be7a1fa6cde59b564df_62/explore)
+
+**Data Measure**: Share of census tract that is an alley or parking lot
+  
+```{r driver5.6, echo =  FALSE}
+
+## Indicator 5.6: Parking availability
+
+share_parking <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Transportation_Parking_WebMercator/MapServer/62/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(GIS_ID) %>%
+  mutate(type = "Parking Lots and Alleys") %>%
+  st_transform(crs = 6487)
+
+mapview(share_parking)
+
+d5.6_parking <- create_measure(share_parking, m5.6_parking) %>%
+  group_by(GEOID) %>%
+  summarize(m5.6_parking = sum(m5.6_parking)) %>%
+  ungroup()
+
+# census tract map of created measure
+create_ggplot(d5.6_parking, m5.6_parking, 
+              "Indicator 5.6: Share of Census Tract That Is Alleys or Parking Lots",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d5.6_parking, m5.6_parking, 
+              "Indicator 5.6: Histogram of Census Tract Values",
+              "Share of census tract that is alleys or parking lots")   
+
+```
+
+## Driver 5 Summary Statistics
+
+```{r driver 5 summary, echo =  FALSE}
+
+d5.1_buses %>%
+  left_join(d5.2_metro, by= "GEOID") %>%
+  left_join(d5.3_capital_bikeshare, by= "GEOID") %>%
+  left_join(d5.4_bike_lanes, by= "GEOID") %>%
+  left_join(d5.5_sidewalk_quality, by= "GEOID") %>%
+  left_join(d5.6_parking, by= "GEOID") %>%
+  # pivot longer so can do summary stats by measure
+  pivot_longer(
+    cols = m5.1_buses:m5.6_parking,
+    names_to = "id",
+    values_to = "value"
+  ) %>%
+  group_by(id) %>%
+  summarize(min = min(value, na.rm = TRUE),
+            max = max(value, na.rm = TRUE),
+            p25 = quantile(value, 0.25, na.rm = TRUE),
+            p50 = quantile(value, 0.50, na.rm = TRUE),
+            p75 = quantile(value, 0.75, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(indicator = case_when(id == "m5.1_buses" ~ "5.1: Share of census tract within 2-minute walk to buses",
+                               id == "m5.2_metro" ~ "5.2: Share of census tract within 15-minute walk to Metro station",
+                               id == "m5.3_capital_bikeshare" ~ "5.3: Share of census tract within 5-minute walk to Capital Bikeshare",
+                               id == "m5.4_bike_lanes" ~ "5.4: Share of census tract road area covered by bike lanes",
+                               id == "m5.5_sidewalk_quality" ~ "5.5: Share of census tract 311 calls that are sidewalk repair requests",
+                               id == "m5.6_parking" ~ "5.6: Share of census tract that is alleys or parking lots")) %>%
+  select(indicator, min, max, p25, p50, p75) %>%
+  gt() %>%
+  cols_label(
+    indicator = md("**Indicator**"),
+    min = md("**Lowest value**"),
+    max = md("**Highest value**"),
+    p25 = md("**25th percentile**"),
+    p50 = md("**Median**"),
+    p75 = md("**75th percentile**")
+  ) %>%
+  opt_table_font(font = "Lato") %>%
+  tab_options(table.font.size = 11) %>%
+  cols_align(align = "center", columns = everything()) %>%
+  fmt_percent(columns = min:p75, decimals = 1) %>%
+  tab_header(md("**Driver 5: Summary of Indicators Across Census Tracts**")) %>%
+  gt::data_color(columns = min, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = max, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p25, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p50, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p75, colors = "ggsci::blue_material")
+
+
+```
+
+
+# Driver 6: Food Environment
+
+Driver 6: Food Environment is composed of the following indicators with the listed weights.
+
+* **Indicator 1: Proximity to grocery stores**: 12.5%
+* **Indicator 2: Low Food Access areas**: 12.5%
+* **Indicator 3: Proximity to farmers markets**: 20%
+* **Indicator 4: Availability of healthy food within stores**: 25%
+* **Indicator 5: Proximity to restaurants**: 20%
+* **Indicator 6: Proximity to liquor stores**: 10%
+
+## Indicator 1: Proximity to grocery stores
+
+This indicator considers proximity to grocery stores in the District of Columbia. Data are read in from Open Data DC.
+
+* [Grocery Store Locations](https://opendata.dc.gov/datasets/1d7c9d0e3aac49c1aa88d377a3bae430_4/explore)
+
+**Data Measure**: Share of census tract within a 15-minute walk of grocery store
+
+```{r driver6.1, echo =  FALSE}
+
+### DRIVER 6: FOOD ENVIRONMENT
+
+## Indicator 6.1: Proximity to grocery stores
+
+grocery_store <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Business_Goods_and_Service_WebMercator/MapServer/4/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  mutate(coordinates = st_coordinates(geometry),
+         LATITUDE = coordinates[, "Y"], 
+         LONGITUDE = coordinates[, "X"]) %>%
+  select(STORENAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Grocery Stores") %>%
+  rename(NAME = STORENAME)
+
+grocery_store_ors <- grocery_store %>%
+  # remove problem lat-lon
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 15-minute walking distance
+grocery_store_boundary <- create_boundary(grocery_store_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d6.1_grocery_store <- create_measure(grocery_store_boundary, m6.1_grocery_store)
+
+# side by side map of points and walking distance boundaries
+create_mapview(grocery_store, grocery_store_boundary, "Grocery Stores (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d6.1_grocery_store, m6.1_grocery_store, 
+              "Indicator 6.1: Share within 15-Minute Walk to Grocery Store",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d6.1_grocery_store, m6.1_grocery_store, 
+              "Indicator 6.1: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to grocery store")   
+
+```
+
+## Indicator 2: Low Food Access areas
+
+This indicator considers Low Food Access Areas in the District of Columbia. Data are read in from Open Data DC.
+
+* [Low Food Access Areas](https://opendata.dc.gov/maps/9b4355a8e1e345ea8350b77516163dd4)
+
+**Data Measure**: Share of census tract located in a Low Food Access Area
+
+```{r driver6.2, echo =  FALSE}
+
+## Indicator 6.2: Low Food Access areas
+
+share_low_food_access <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Public_Service_WebMercator/MapServer/61/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  st_transform(crs = 6487)
+
+mapview(share_low_food_access)
+
+d6.2_low_food_access <- create_measure(share_low_food_access, m6.2_low_food_access) %>%
+  group_by(GEOID) %>%
+  summarize(m6.2_low_food_access = sum(m6.2_low_food_access)) %>%
+  ungroup()
+
+# census tract map of created measure
+create_ggplot(d6.2_low_food_access, m6.2_low_food_access, 
+              "Indicator 6.2: Share of Census Tract Located in a Low\nFood Access Area",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d6.2_low_food_access, m6.2_low_food_access, 
+              "Indicator 6.2: Histogram of Census Tract Values",
+              "Share of census tract located in a Low Food Access Area")   
+
+```
+
+## Indicator 3: Proximity to farmers markets
+
+This indicator considers proximity to farmers markets in the District of Columbia. Data are read in from Open Data DC.
+
+* [Farmers Market Locations](https://opendata.dc.gov/maps/f2e1c2ef9eb44f2899f4a310a80ecec9)
+
+**Data Measure**: Share of census tract within a 15-minute walk of a farmers market
+
+```{r driver6.3, echo =  FALSE}
+
+## Indicator 6.3: Proximity to farmers markets
+
+farmers_markets <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Business_Goods_and_Service_WebMercator/MapServer/2/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(NAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Farmer's Markets")
+
+farmers_markets_ors <- farmers_markets %>%
+  # remove problem lat-lon
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 15-minute walking distance
+farmers_markets_boundary <- create_boundary(farmers_markets_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d6.3_farmers_markets <- create_measure(farmers_markets_boundary, m6.3_farmers_markets)
+
+# side by side map of points and walking distance boundaries
+create_mapview(farmers_markets, farmers_markets_boundary, "Farmers Markets (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d6.3_farmers_markets, m6.3_farmers_markets, 
+              "Indicator 6.3: Share within 15-Minute Walk to Farmers Market",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d6.3_farmers_markets, m6.3_farmers_markets, 
+              "Indicator 6.3: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to farmers market") 
+
+```
+
+## Indicator 4: Proximity to healthy corner stores
+
+This indicator considers proximity to healthy corner stores in the District of Columbia. Data are read in from Open Data DC.
+
+* [Healthy Corner Stores](https://opendata.dc.gov/datasets/DCGIS::healthy-corner-stores/about)
+
+**Data Measure**: Share of census tract within a 15-minute walk of a healthy corner store
+
+```{r driver6.4, echo =  FALSE}
+
+## Indicator 6.4: Proximity to healthy corner stores
+
+healthy_corner_store <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Public_Service_WebMercator/MapServer/57/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(STORE, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Healthy Corner Store") %>%
+  filter(!is.na(LATITUDE) & !is.na(LONGITUDE))
+
+healthy_corner_store_ors <- healthy_corner_store %>%
+  # remove problem lat-lon
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 15-minute walking distance
+healthy_corner_store_boundary <- create_boundary(healthy_corner_store_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d6.4_healthy_corner_store <- create_measure(healthy_corner_store_boundary, m6.4_healthy_corner_store)
+
+# side by side map of points and walking distance boundaries
+create_mapview(healthy_corner_store, healthy_corner_store_boundary, "Healthy Corner Stores (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d6.4_healthy_corner_store, m6.4_healthy_corner_store, 
+              "Indicator 6.4: Share within 15-Minute Walk to Healthy Corner Store",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d6.4_healthy_corner_store, m6.4_healthy_corner_store, 
+              "Indicator 6.4: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to healthy corner store") 
+
+```
+
+## Indicator 5: Proximity to restaurants 
+
+This indicator considers proximity to restaurants in the District of Columbia. The Hacktoberfest team received a data extract from DC Health, representing a list of establishments with the following NAICS codes:
+
+* 722511 = Full-Service Restaurants
+* 722513 = Limited-Service Restaurants
+* 722514 = Cafeterias, Grill Buffets, and Buffets
+* 722515 = Snack and Nonalcoholic Beverage Bars
+* 72233 = Mobile Food Services
+* 722410 = Drinking Places
+
+The dataset was uploaded to [OCTO's Master Address Repository](https://mar2.data.dc.gov/batch-geocode) to obtain latitude-longitude coordinates for those establishments. Only those with a 92% match score or higher (as recommended by OCTO) were included in the analysis.
+
+**Data Measure**: Share of census tract within a 5-minute walk of a restaurant
+
+```{r driver6.5, echo =  FALSE}
+
+## Indicator 6.5 Access to restaurants by type (e.g. predominantly fast food)
+
+# load in dataset from DC Health and prep it for OCTO's MAR
+hi_naics <- read.xlsx("C:/Hacktoberfest/Data/hi_naics_merge_7.23.23.xlsx",
+                       sheet = "hi_naics_merge",
+                      rows = 2:4341) %>%
+  janitor::clean_names() %>%
+  # only keep rows with a resturant NAICS code
+  filter(!is.na(naics_classification_code)) %>%
+  # remove any addresses in VA or MD
+  filter(!str_detect(city_zip, regex("\\bVA\\b|\\bMD\\b", ignore_case = TRUE))) %>%
+  # extract the zip
+  mutate(zip = str_extract(city_zip, "\\b\\d{5}\\b")) %>%
+  # create an identifier for merging back with MAR output
+  mutate(ID = row_number()) %>%
+  select(-10, -11, -12)
+
+# for_MAR_6_5 <- hi_naics %>%
+#   mutate(CITY = "WASHINGTON",
+#          STATE = "DC") %>%
+#   select(ID, 
+#          ADDRESS = address,
+#          CITY,
+#          STATE,
+#          ZIPCODE = zip)
+# 
+# # run through OCTO's MAR
+# write.csv(for_MAR_6_5, "C:/Hacktoberfest/Output/for_MAR_6_5.csv", row.names = FALSE, na = "")
+
+# read in OCTO MAR output and use recommended match score threshold of 92% or higher
+from_MAR_6_5 <- read.xlsx("C:/Hacktoberfest/Output/for_MAR_6_5_Geocoded.xlsx",
+                          sheet = "data") %>%
+  filter(MAR_SCORE >= 92) %>%
+  # keep only vars needed to merge back to original
+  select(ID, LATITUDE = MAR_LATITUDE, LONGITUDE = MAR_LONGITUDE) %>%
+  mutate(ID = as.numeric(ID)) %>%
+  # bring in other data
+  left_join(hi_naics, by = "ID") %>%
+  rename(type = naics_restaurant_classification_type,
+         NAME = establishment_name) %>%
+  # remove places that fail in ORS call
+  filter(!NAME %in% c("BUNA CAFE", "EVANS BROTHERS SEAFOOD", "JESSIE TAYLOR SEAFOOD - 6",
+                                    "THE WHARF", "HELL'S KITCHEN", "ROOT & SPRIG")) %>%
+  filter(address != "1901 14TH STREET NW") %>%
+  # convert into an sf object
+  mutate(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+
+restaurants_ors <- from_MAR_6_5 %>%
+  # remove problem lat-lon
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates
+  distinct()
+
+# find the boundary of 5-minute walking distance
+restaurants_boundary <- create_boundary(restaurants_ors, five_min)
+
+# create share of census tract within walking distance measure
+d6.5_restaurants <- create_measure(restaurants_boundary, m6.5_restaurants)
+
+# side by side map of points and walking distance boundaries
+create_mapview(from_MAR_6_5, restaurants_boundary, "Restaurants (Layer 1) | 5-Min Walking Distance Boundaries (Layer 2)")
+
+# # export CSV for now so can skip ORS
+# write.csv(d6.5_restaurants, "C:/Hacktoberfest/Output/d6.5_restaurants.csv", row.names = FALSE)
+
+# read in CSV for now so can skip ORS
+# d6.5_restaurants <- read.csv("C:/Hacktoberfest/Output/d6.5_restaurants.csv") %>%
+#   mutate(GEOID = as.character(GEOID))
+  
+# census tract map of created measure
+create_ggplot(d6.5_restaurants, m6.5_restaurants, 
+              "Indicator 6.5: Share within 5-Minute Walk to Restaurants",
+              "DC Health, NAICS")
+
+# histogram of created measure
+create_histogram(d6.5_restaurants, m6.5_restaurants, 
+              "Indicator 6.5: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to restaurants") 
+
+```
+
+## Indicator 6: Proximity to liquor stores
+
+This indicator considers proximity to liquor stores in the District of Columbia. Data are read in from Open Data DC.
+
+* [Liquor Licenses](https://opendata.dc.gov/datasets/liquor-licenses/explore?showTable=true): Filters on Class Type = A
+
+**Data Measure**: Share of census tract within a 15-minute walk of liquor store
+
+```{r driver6.6, echo =  FALSE}
+
+## Indicator 6.6: Proximity to liquor stores
+
+liquor_store <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Business_Licensing_and_Grants_WebMercator/MapServer/5/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  filter(CLASS == "A") %>%
+  select(TRADE_NAME, ADDRESS, TYPE, LATITUDE, LONGITUDE) %>%
+  rename(type = TYPE,
+         NAME = TRADE_NAME) 
+
+liquor_store_ors <- liquor_store %>%
+  # remove problem lat-lon
+  filter(NAME != "Capitol Fine Wine & Spirits") %>%
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 15-minute walking distance
+liquor_store_boundary <- create_boundary(liquor_store_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d6.6_liquor_store <- create_measure(liquor_store_boundary, m6.6_liquor_store)
+
+# side by side map of points and walking distance boundaries
+create_mapview(liquor_store, liquor_store_boundary, "Liquor Stores (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d6.6_liquor_store, m6.6_liquor_store, 
+              "Indicator 6.6: Share within 15-Minute Walk to Liquor Store",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d6.6_liquor_store, m6.6_liquor_store, 
+              "Indicator 6.6: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to liquor store") 
+
+```
+
+## Driver 6 Summary Statistics
+
+```{r driver 6 summary, echo =  FALSE}
+
+d6.1_grocery_store %>%
+  left_join(d6.2_low_food_access, by= "GEOID") %>%
+  left_join(d6.3_farmers_markets, by= "GEOID") %>%
+  left_join(d6.4_healthy_corner_store, by= "GEOID") %>%
+  left_join(d6.5_restaurants, by= "GEOID") %>%
+  left_join(d6.6_liquor_store, by= "GEOID") %>%
+  # pivot longer so can do summary stats by measure
+  pivot_longer(
+    cols = m6.1_grocery_store:m6.6_liquor_store,
+    names_to = "id",
+    values_to = "value"
+  ) %>%
+  group_by(id) %>%
+  summarize(min = min(value, na.rm = TRUE),
+            max = max(value, na.rm = TRUE),
+            p25 = quantile(value, 0.25, na.rm = TRUE),
+            p50 = quantile(value, 0.50, na.rm = TRUE),
+            p75 = quantile(value, 0.75, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(indicator = case_when(id == "m6.1_grocery_store" ~ "6.1: Share of census tract within 15-minute walk to grocery store",
+                               id == "m6.2_low_food_access" ~ "6.2: Share of census tract located in a Low Food Access Area",
+                               id == "m6.3_farmers_markets" ~ "6.3: Share of census tract within 15-minute walk to farmers market",
+                               id == "m6.4_healthy_corner_store" ~ "6.4: Share of census tract within 15-minute walk to healthy corner store",
+                               id == "m6.5_restaurants" ~ "6.5: Share of census tract within 5-minute walk to restaurants",
+                               id == "m6.6_liquor_store" ~ "6.6: Share of census tract within 15-minute walk to liquor store")) %>%
+  select(indicator, min, max, p25, p50, p75) %>%
+  gt() %>%
+  cols_label(
+    indicator = md("**Indicator**"),
+    min = md("**Lowest value**"),
+    max = md("**Highest value**"),
+    p25 = md("**25th percentile**"),
+    p50 = md("**Median**"),
+    p75 = md("**75th percentile**")
+  ) %>%
+  opt_table_font(font = "Lato") %>%
+  tab_options(table.font.size = 11) %>%
+  cols_align(align = "center", columns = everything()) %>%
+  fmt_percent(columns = min:p75, decimals = 1) %>%
+  tab_header(md("**Driver 6: Summary of Indicators Across Census Tracts**")) %>%
+  gt::data_color(columns = min, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = max, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p25, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p50, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p75, colors = "ggsci::blue_material")
+ 
+
+```
+
+# Driver 7: Medical Care
+
+Driver 7: Medical Care is composed of the following indicators with the listed weights.
+
+* **Indicator 1: Proximity to health care facilities**: 75%
+* **Indicator 2: Proximity to mental health facilities and providers**: 25%
+
+## Indicator 1: Proximity to health care facilities
+
+This indicator considers proximity to health care facilities in the District of Columbia. Data are read in from Open Data DC.
+
+* [Aging Services](https://opendata.dc.gov/maps/db9d1ac8015a45dcad19690017e03ae6)
+* [Primary Care Facility](https://opendata.dc.gov/datasets/018890d7399245759f05c7932261ef44_7/explore)
+* [Hospitals](https://opendata.dc.gov/maps/6c18bb76d8644bc1bf53cac2d2199564)
+
+**Data Measure**: Share of census tract within a 15-minute walk of an aging services facility, a primary care facility, or a hospital
+
+```{r driver7.1, echo =  FALSE}
+
+### DRIVER 7: MEDICAL CARE
+
+## Indicator 7.1: Proximity to health care facility by type (e.g. hospitals, health centers, urgent care, pharmacies, minute clinics at pharmacies)
+
+aging_services <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Health_WebMercator/MapServer/0/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(NAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Aging Services") 
+
+primary_care <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Health_WebMercator/MapServer/7/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  mutate(coordinates = st_coordinates(geometry),
+         LATITUDE = coordinates[, "Y"], 
+         LONGITUDE = coordinates[, "X"]) %>%
+  select(1, 2, LATITUDE, LONGITUDE) %>%
+  rename(NAME = 1,
+         ADDRESS = 2) %>%
+  mutate(type = "Primary Care Facility") 
+
+hospitals <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Health_WebMercator/MapServer/4/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  mutate(coordinates = st_coordinates(geometry),
+         LATITUDE = coordinates[, "Y"], 
+         LONGITUDE = coordinates[, "X"]) %>%
+  select(NAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Hospitals") 
+
+all_health_care <- aging_services %>%
+  rbind(primary_care, hospitals)
+
+health_care_ors <- all_health_care %>%
+  # remove problem lat-lon
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 15-minute walking distance
+health_care_boundary <- create_boundary(health_care_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d7.1_health_care <- create_measure(health_care_boundary, m7.1_health_care)
+
+# side by side map of points and walking distance boundaries
+create_mapview(all_health_care, health_care_boundary, "Health Care Facilities (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d7.1_health_care, m7.1_health_care, 
+              "Indicator 7.1: Share within 15-Minute Walk to Health Care Facility",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d7.1_health_care, m7.1_health_care, 
+              "Indicator 7.1: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to health care facility")
+
+```
+
+
+## Indicator 2: Proximity to mental health facilities and providers
+
+This indicator considers proximity to mental health providers and substance use providers in the District of Columbia. Data are read in from:
+
+* [Mental Health Providers](https://dbh.dc.gov/node/119532)
+* [Substance Use Providers](https://dbh.dc.gov/page/substance-use-disorder-services)
+
+The addresses were uploaded to [OCTO's Master Address Repository](https://mar2.data.dc.gov/batch-geocode) to obtain latitude-longitude coordinates. Only those addresses with a 92% match score or higher (as recommended by OCTO) were included in the analysis.
+
+**Data Measure**: Share of census tract within a 15-minute walk of a mental health provider or substance use provider
+
+```{r driver7.2, echo =  FALSE}
+
+## Indicator 7.2: Proximity to mental health facilities and providers
+
+#load in dataset from DBH and prep it for OCTO's MAR
+dbh_data <- read.xlsx("C:/Hacktoberfest/Data/m7.2 data.xlsx",
+                       sheet = "Sheet1") %>%
+  # remove any addresses in VA or MD
+  filter(!str_detect(STATE, regex("\\bVA\\b|\\bMD\\b", ignore_case = TRUE)))
+
+for_MAR_7_2 <- dbh_data %>%
+  select(ID, ADDRESS, CITY, STATE, ZIPCODE)
+
+# run through OCTO's MAR
+#write.csv(for_MAR_7_2, "C:/Hacktoberfest/Output/for_MAR_7_2.csv", row.names = FALSE, na = "")
+
+# read in OCTO MAR output and use recommended match score threshold of 92% or higher
+from_MAR_7_2 <- read.xlsx("C:/Hacktoberfest/Output/for_MAR_7_2_Geocoded.xlsx",
+                          sheet = "data") %>%
+  filter(MAR_SCORE >= 92) %>%
+  # keep only vars needed to merge back to original
+  select(ID, LATITUDE = MAR_LATITUDE, LONGITUDE = MAR_LONGITUDE) %>%
+  mutate(ID = as.numeric(ID)) %>%
+  # bring in other data
+  left_join(dbh_data, by = "ID") %>%
+  # remove places that fail in ORS call
+  # convert into an sf object
+  mutate(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+
+mental_health_ors <- from_MAR_7_2 %>%
+  # remove problem lat-lon
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates
+  distinct()
+
+# find the boundary of 5-minute walking distance
+mental_health_boundary <- create_boundary(mental_health_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d7.2_mental_health <- create_measure(mental_health_boundary, m7.2_mental_health)
+
+# side by side map of points and walking distance boundaries
+create_mapview(from_MAR_7_2, mental_health_boundary, "Mental Health Providers (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+
+# census tract map of created measure
+create_ggplot(d7.2_mental_health, m7.2_mental_health, 
+              "Indicator 7.2: Share within 15-Minute Walk to Mental Health Providers",
+              "DBH")
+
+# histogram of created measure
+create_histogram(d7.2_mental_health, m7.2_mental_health, 
+              "Indicator 7.2: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to mental health providers")
+
+```
+
+## Driver 7 Summary Statistics
+
+```{r driver 7 summary, echo =  FALSE}
+
+d7.1_health_care %>%
+  left_join(d7.2_mental_health, by= "GEOID") %>%
+  # pivot longer so can do summary stats by measure
+  pivot_longer(
+    cols = m7.1_health_care:m7.2_mental_health,
+    names_to = "id",
+    values_to = "value"
+  ) %>%
+  group_by(id) %>%
+  summarize(min = min(value, na.rm = TRUE),
+            max = max(value, na.rm = TRUE),
+            p25 = quantile(value, 0.25, na.rm = TRUE),
+            p50 = quantile(value, 0.50, na.rm = TRUE),
+            p75 = quantile(value, 0.75, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(indicator = case_when(id == "m7.1_health_care" ~ "7.1: Share of census tract within 15-minute walk to health care facility",
+                               id == "m7.2_mental_health" ~ "7.2: Share of census tract within 15-minute walk to mental health providers")) %>%
+  select(indicator, min, max, p25, p50, p75) %>%
+  gt() %>%
+  cols_label(
+    indicator = md("**Indicator**"),
+    min = md("**Lowest value**"),
+    max = md("**Highest value**"),
+    p25 = md("**25th percentile**"),
+    p50 = md("**Median**"),
+    p75 = md("**75th percentile**")
+  ) %>%
+  opt_table_font(font = "Lato") %>%
+  tab_options(table.font.size = 11) %>%
+  cols_align(align = "center", columns = everything()) %>%
+  fmt_percent(columns = min:p75, decimals = 1) %>%
+  tab_header(md("**Driver 7: Summary of Indicators Across Census Tracts**")) %>%
+  gt::data_color(columns = min, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = max, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p25, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p50, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p75, colors = "ggsci::blue_material")
+ 
+
+```
+
+# Driver 8: Outdoor Environment
+
+Driver 8: Outdoor Environment is composed of the following indicators with the listed weights.
+
+* **Indicator 1: Tree canopy**: 20%
+* **Indicator 2: Proximity to parks**: 20% 
+* **Indicator 3: Proximity to trails**: 20%
+* **Indicator 4: Presence of mix of land uses**: 10%
+* **Indicator 5: Positive land use**: 10%
+* **Indicator 6: Flood zones**: 20%
+
+## Indicator 1: Tree canopy
+
+This indicator considers urban tree canopy in the District of Columbia. Data are read in from Open Data DC.
+
+* [Urban Tree Canopy by Census Block Group in 2020](https://opendata.dc.gov/datasets/DCGIS::urban-tree-canopy-by-census-block-group-in-2020/about)
+
+**Data Measure**: Share of census tract land area (in acres) that is existing urban tree canopy (in acres)
+
+```{r driver8.1, echo =  FALSE}
+
+### DRIVER 8: OUTDOOR ENVIRONMENT
+
+## Indicator 8.1: Tree canopy 
+
+# read in Urban Tree Canopy by Census Block Group in 2020, then summarize to tract
+d8.1_urban_tree_canopy <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Urban_Tree_Canopy/MapServer/2/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(-GEOID) %>%
+  # create tract GEOID
+  mutate(GEOID = paste0(STATEFP, COUNTYFP, TRACTCE)) %>%
+  # keep vars needed
+  select(GEOID, LAND_AC, TCAN_AC) %>%
+  st_drop_geometry() %>%
+  group_by(GEOID) %>%
+  summarize(LAND_AC = sum(LAND_AC, na.rm = FALSE),
+            TCAN_AC = sum(TCAN_AC, na.rm = FALSE)) %>%
+  ungroup() %>% 
+  # measure = percent of land area that is urban tree canopy
+  mutate(m8.1_urban_tree_canopy = TCAN_AC / LAND_AC) %>%
+  select(GEOID, m8.1_urban_tree_canopy)
+
+# census tract map of created measure
+create_ggplot(d8.1_urban_tree_canopy, m8.1_urban_tree_canopy, 
+              "Indicator 8.1: Share of Census Tract Land Area That Is Urban Tree Canopy",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d8.1_urban_tree_canopy, m8.1_urban_tree_canopy, 
+              "Indicator 8.1: Histogram of Census Tract Values",
+              "Share of census tract land area that is urban tree canopy")
+
+```
+
+## Indicator 2: Proximity to parks
+
+This indicator considers proximity to parks in the District of Columbia. Data are read in from Open Data DC.
+
+* [Parks and Recreation Areas](https://opendata.dc.gov/datasets/DCGIS::parks-and-recreation-areas/about): Filtered for any USE_TYPE's that contain the string "PARK"
+
+**Data Measure**: Share of census tract within a 10-minute walk of a park
+
+```{r driver8.2, echo =  FALSE}
+
+## Indicator 8.2: Proximity to parks
+
+parks <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Recreation_WebMercator/MapServer/9/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  filter(str_detect(USE_TYPE, "PARK")) %>%
+   mutate(centroid = st_centroid(geometry),
+         coordinates = st_coordinates(centroid),
+         LATITUDE = coordinates[, "Y"], 
+         LONGITUDE = coordinates[, "X"]) %>%
+  select(NAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Park")
+
+parks_ors <- parks %>%
+  # remove problem lat-lon
+  filter(NAME != "Boathouse Row") %>%
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 10-minute walking distance
+parks_boundary <- create_boundary(parks_ors, ten_min)
+
+# create share of census tract within walking distance measure
+d8.2_parks <- create_measure(parks_boundary, m8.2_parks)
+
+# side by side map of points and walking distance boundaries
+create_mapview(parks, parks_boundary, "Parks (Layer 1) | 10-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d8.2_parks, m8.2_parks, 
+              "Indicator 8.2: Share within 10-Minute Walk to Parks",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d8.2_parks, m8.2_parks, 
+              "Indicator 8.2: Histogram of Census Tract Values",
+              "Share of census tract within 10-minute walk to parks")
+
+```
+
+## Indicator 3: Proximity to trails
+
+This indicator considers proximity to bike trails and National Park Service Trails in the District of Columbia. Data are read in from Open Data DC.
+
+* [Bike Trails](https://opendata.dc.gov/datasets/DCGIS::bike-trails/about)
+* [National Park Service Trails](https://opendata.dc.gov/datasets/DCGIS::national-park-service-trails/about)
+
+**Data Measure**: Share of census tract within a 1/4 mile of a bike trail or National Park Service Trail
+
+```{r driver8.3, echo =  FALSE}
+
+## Indicator 8.3: Access to trails
+
+bike_trails <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Transportation_Bikes_Trails_WebMercator/MapServer/4/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(NAME) %>%
+  mutate(type = "Bike Trail") %>%
+  st_transform(crs = 6487)
+
+national_park_trail <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Transportation_Bikes_Trails_WebMercator/MapServer/75/query?where=1%3D1&outFields=*&outSR=4326&f=json", quiet = TRUE) %>%
+  select(UNIT_NAME) %>%
+  mutate(type = "National Park Trail") %>%
+  st_transform(crs = 6487) %>%
+  rename(NAME = UNIT_NAME)
+
+trails_combined <- bike_trails %>%
+  rbind(national_park_trail)
+
+# 1/4 mile buffer
+buffer_distance_quarter_mile <- units::set_units(.25, "mile")
+buffer_distance_quarter_mile <- buffer_distance_quarter_mile %>%
+  units::set_units("meters")
+
+# draw a quarter mile buffer and attach to census tract boundaries
+trails_quarter_mile <- trails_combined %>%
+  st_buffer(buffer_distance_quarter_mile) %>%
+  st_union()
+  
+# create share of census tract within 1/4 mile of trails
+d8.3_trails <- create_measure(trails_quarter_mile, m8.3_trails)
+
+# side by side map of points and walking distance boundaries
+create_mapview(trails_combined, trails_quarter_mile, "Trails (Layer 1) | 1/4 Mile Boundaries (Layer 2)")
+
+# census tract map of created measure
+create_ggplot(d8.3_trails, m8.3_trails, 
+              "Indicator 8.3: Share within 1/4 Mile of Bike or National Park Service Trails",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d8.3_trails, m8.3_trails, 
+              "Indicator 8.3: Histogram of Census Tract Values",
+              "Share of census tract within 1/4 mile of bike or National Park Service trails")
+
+```
+
+
+## Indicator 4: Presence of mix of land uses
+
+This indicator considers extent of land use diversity at the neighborhood level, inspired by a similar measure constructed by the [City of Buffalo](https://ubwp.buffalo.edu/foodlab/wp-content/uploads/sites/68/2017/06/40_Delgado_Norton_Raja_2013_RajaEd_IndicatorsforaHealthyFoodandBuiltEnvironmentinBuffalo_UB1.pdf). Data are read in from Open Data DC.
+
+* [Existing land use](https://opendata.dc.gov/datasets/DCGIS::existing-land-use/about)
+
+The existing land use data includes the following primary land use categories (along with the provided frequencies of SSLs). 
+
+<table>
+
+Land Use Category       Count
+--------------------    ---------
+Commercial              5,815
+Industrial              426
+Institutional           1,007
+Mixed                   699
+Other                   522
+Recreational            85
+Religious               687
+Residential             111,407
+Vacant                  11,276
+Total                   131,924
+
+</table>
+
+After consultation with the Office of Planning, this analysis considers four of the land use categories: **commercial, industrial, institutional, and residential**.
+
+To create a land use diversity score, an [entropy index](https://www.dartmouth.edu/~segregation/IndicesofSegregation.pdf) is used, using the following formula:
+
+$$h_{i} = -\sum_{j = 1}^{k}p_{ij}{\ln(p_{ij})}$$
+
+* i = each census tract in DC
+* j = each of the four land use types (commercial, industrial, institutional, and residential)
+* k = total number of land use types (4)
+* p = proportion of land use area of jth land use type in census tract i
+
+To scale the land use diversity score such that the values fall between 0 and 1, all values were divided by ln(4), the maximum possible value for h. A value of 0 is the least diverse, such that all of the census tract is represented by just one land use type. A value of 1 is the most diverse, such that all four land use types are equally represented in the census tract.
+
+
+```{r driver8.4, echo =  FALSE}
+
+
+## Indicator 8.4: Presence of mix of land uses
+library(units)
+
+existing_land_use <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Planning_Landuse_and_Zoning_WebMercator/MapServer/4/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  st_transform(crs = 6487) %>%
+  # only keeping these categories: Commercial, Industrial, Institutional, Residential 
+  filter(PRIMARYLU %in% c("Commercial", "Industrial", "Institutional", "Residential")) %>%
+  # create an area of land use 
+  mutate(land_use_area = st_area(geometry)) %>%
+  # intersect DC tracts 
+  st_join(dc_tracts, join = st_intersects) %>%
+  st_drop_geometry() %>%
+  # now sum by GEOID
+  group_by(GEOID, PRIMARYLU) %>%
+  summarize(land_use_area = sum(land_use_area, na.rm = TRUE)) %>%
+  ungroup() %>%
+  # now pivot wider
+  pivot_wider(
+    names_from = "PRIMARYLU",
+    values_from = "land_use_area"
+  ) %>%
+  mutate(Commercial = gsub("\\[.*\\]", "", Commercial),
+         Institutional = gsub("\\[.*\\]", "", Residential),
+         Industrial = gsub("\\[.*\\]", "", Industrial),
+         Residential = gsub("\\[.*\\]", "", Residential)) %>%
+  mutate(Commercial = as.numeric(Commercial),
+         Industrial = as.numeric(Industrial),
+         Institutional = as.numeric(Institutional),
+         Residential = as.numeric(Residential)) %>%
+  mutate(Commercial = ifelse(is.na(Commercial), 0, as.numeric(Commercial)),
+         Industrial = ifelse(is.na(Industrial), 0, as.numeric(Industrial)),
+         Institutional = ifelse(is.na(Institutional), 0, as.numeric(Institutional)),
+         Residential = ifelse(is.na(Residential), 0, as.numeric(Residential))) %>%
+  # create entropy index
+  mutate(land_use_total = Commercial + Industrial + Institutional + Residential,
+         comm_percent = Commercial / land_use_total,
+         indust_percent = Industrial / land_use_total,
+         instit_percent = Institutional / land_use_total,
+         resid_percent = Residential / land_use_total) %>%
+  mutate(log_comm = ifelse(comm_percent != 0, comm_percent * log(comm_percent), 0),
+         log_indust = ifelse(indust_percent != 0, indust_percent * log(indust_percent), 0),
+         log_instit = ifelse(instit_percent != 0, instit_percent * log(instit_percent), 0),
+         log_resid = ifelse(resid_percent != 0, resid_percent * log(resid_percent), 0)) %>%
+  mutate(m8.4_land_use = -(log_comm + log_indust + log_instit + log_resid)/log(4)) %>%
+  select(GEOID, m8.4_land_use)
+  
+# create measure
+d8.4_land_use <- dc_tracts %>%
+    select(GEOID) %>%
+    st_drop_geometry() %>%
+    full_join(existing_land_use, by = c("GEOID")) %>%
+    mutate(m8.4_land_use = replace_na(m8.4_land_use,0))
+
+# census tract map of created measure
+create_ggplot(d8.4_land_use, m8.4_land_use, 
+              "Indicator 8.4: Land Use Diversity Score",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d8.4_land_use, m8.4_land_use, 
+              "Indicator 8.4: Histogram of Census Tract Values",
+              "Land use diversity score")
+
+```
+
+
+## Indicator 5: Positive land use
+
+Building from the previous indicator, this indicator considers the land use types in the District that correlate positively with health outcomes. Although which land use types positively correlate with health outcomes and which negatively correlate is up for debate, we treat all land use types as positively correlating with health outcomes with the exception of Industrial and Vacant land use types. 
+
+* [Existing land use](https://opendata.dc.gov/datasets/DCGIS::existing-land-use/about)
+
+**Data Measure**: Share of census tract land use that is not industrial or vacant
+
+```{r driver8.5, echo =  FALSE}
+
+
+## Indicator 8.5: Land use that correlate positively with health
+library(units)
+
+positive_land_use <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Planning_Landuse_and_Zoning_WebMercator/MapServer/4/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  # issues with some land use types 
+  sf::st_make_valid() %>%
+  st_transform(crs = 6487) %>%
+  # create an area of land use 
+  mutate(land_use_area = st_area(geometry)) %>%
+  # intersect DC tracts 
+  st_join(dc_tracts, join = st_intersects) %>%
+  st_drop_geometry() %>%
+  mutate(land_use_area = gsub("\\[.*\\]", "", land_use_area)) %>%
+  mutate(land_use_area = as.numeric(land_use_area)) %>%
+  mutate(land_use_area = ifelse(is.na(land_use_area), 0, as.numeric(land_use_area))) %>%
+  # now sum by GEOID
+  group_by(GEOID) %>%
+  summarise(
+    total_land_area = sum(land_use_area, na.rm = TRUE),
+    not_industrial_or_vacant = sum(case_when(
+      !(PRIMARYLU %in% c("Industrial", "Vacant")) ~ land_use_area,
+      TRUE ~ 0
+    ), na.rm = TRUE)
+  ) %>%
+  ungroup() %>%
+  mutate(m8.5_positive = not_industrial_or_vacant / total_land_area) %>%
+  filter(!is.na(GEOID)) %>%
+  select(GEOID, m8.5_positive)
+  
+# create measure
+d8.5_positive <- dc_tracts %>%
+    select(GEOID) %>%
+    st_drop_geometry() %>%
+    full_join(positive_land_use, by = c("GEOID")) %>%
+    mutate(m8.5_positive = replace_na(m8.5_positive,0))
+
+# census tract map of created measure
+create_ggplot(d8.5_positive, m8.5_positive, 
+              "Indicator 8.5: Positive Land Uses",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d8.5_positive, m8.5_positive, 
+              "Indicator 8.5: Histogram of Census Tract Values",
+              "Share of census tract land use that is not industrial or vacant")
+
+```
+
+
+
+
+
+## Indicator 6: Flood zones
+
+This indicator considers co-location with 100-year or 500-year floodplains in the District of Columbia. Data are read in from Open Data DC.
+
+* [Floodplains](https://opendata.dc.gov/datasets/DCGIS::floodplains-1/about): After consulting with DOEE, cases where ZONE = A or AE are 100-year floodplains, cases where ZONE = X and ZONE_SUBTY = AREA WITH REDUCED FLOOD RISK DUE TO LEVEE are 500-year floodplains, and cases where ZONE = X500 and ZONE_SUBTY = 0.2 PCT ANNUAL CHANCE FLOOD HAZARD are also 500-year floodplains.
+
+**Data Measure**: Share of census tract within a 100-year or 500-year floodplain
+
+```{r driver8.6, echo =  FALSE}
+
+flood_plains <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Environment_Flood_WebMercator/MapServer/9/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  st_transform(6487) %>%
+  # upon consulting with Nick Bonard, only include 100-year and 500-year floodplains
+  filter(!(ZONE == "X" & ZONE_SUBTY == "AREA OF MINIMAL FLOOD HAZARD"))
+
+d8.6_flood_plains <- create_measure(flood_plains, m8.6_flood_plains) %>%
+  group_by(GEOID) %>%
+  summarize(m8.6_flood_plains = sum(m8.6_flood_plains)) %>%
+  ungroup()
+
+# census tract map of created measure
+create_ggplot(d8.6_flood_plains, m8.6_flood_plains, 
+              "Indicator 8.6: Share of Census Tract within 100-Year or\n500-Year Floodplain",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d8.6_flood_plains, m8.6_flood_plains, 
+              "Indicator 8.6: Histogram of Census Tract Values",
+              "Share of census tract within 100-year or 500-year floodplain")
+
+```
+
+## Driver 8 Summary Statistics
+
+```{r driver 8 summary, echo =  FALSE}
+
+d8.1_urban_tree_canopy %>%
+  left_join(d8.2_parks, by= "GEOID") %>%
+  left_join(d8.3_trails, by= "GEOID") %>%
+  left_join(d8.4_land_use, by= "GEOID") %>%
+  left_join(d8.5_positive, by= "GEOID") %>%
+  left_join(d8.6_flood_plains, by= "GEOID") %>%
+  # pivot longer so can do summary stats by measure
+  pivot_longer(
+    cols = m8.1_urban_tree_canopy:m8.6_flood_plains,
+    names_to = "id",
+    values_to = "value"
+  ) %>%
+  group_by(id) %>%
+  summarize(min = min(value, na.rm = TRUE),
+            max = max(value, na.rm = TRUE),
+            p25 = quantile(value, 0.25, na.rm = TRUE),
+            p50 = quantile(value, 0.50, na.rm = TRUE),
+            p75 = quantile(value, 0.75, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(indicator = case_when(id == "m8.1_urban_tree_canopy" ~ "8.1: Share of census tract land area that is urban tree canopy",
+                               id == "m8.2_parks" ~ "8.2: Share of census tract within 10-minute walk to parks",
+                               id == "m8.3_trails" ~ "8.3: Share of census tract within 1/4 mile of bike or National Park Service trail",
+                               id == "m8.4_land_use" ~ "8.4: Land use diversity score",
+                               id == "m8.5_positive" ~ "8.5: Share of census tract land use that is not industrial or vacant",
+                               id == "m8.6_flood_plains" ~ "8.6: Share of census tract within a 100-year or 500-year floodplain")) %>%
+  select(indicator, min, max, p25, p50, p75) %>%
+  gt() %>%
+  cols_label(
+    indicator = md("**Indicator**"),
+    min = md("**Lowest value**"),
+    max = md("**Highest value**"),
+    p25 = md("**25th percentile**"),
+    p50 = md("**Median**"),
+    p75 = md("**75th percentile**")
+  ) %>%
+  opt_table_font(font = "Lato") %>%
+  tab_options(table.font.size = 11) %>%
+  cols_align(align = "center", columns = everything()) %>%
+  fmt_percent(columns = min:p75, decimals = 1) %>%
+  tab_header(md("**Driver 8: Summary of Indicators Across Census Tracts**")) %>%
+  gt::data_color(columns = min, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = max, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p25, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p50, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p75, colors = "ggsci::blue_material")
+ 
+
+```
+
+
+# Driver 9: Community Safety
+
+Driver 9: Community Safety is composed of the following indicators with the listed weights.
+
+* **Indicator 1: Proximity to vacant lots**: 14%
+* **Indicator 2: Streetlight coverage**: 24%
+* **Indicator 3: Proximity to police department locations**: 19%
+* **Indicator 4: Proximity to fire stations**: 19%
+* **Indicator 5: Proximity to High Injury Network Corridors**: 24%
+
+## Indicator 1: Proximity to vacant lots
+
+This indicator considers proximity to vacant lots in the District of Columbia. Data are read in from DOB's Public Dashboard.
+
+* [DOB Public Dashboard: Vacant Properties](https://dataviz1.dc.gov/t/OCTO/views/DOBPublicDashboard/VacantProperties?%3AshowAppBanner=false&%3Adisplay_count=n&%3AshowVizHome=n&%3Aorigin=viz_share_link&%3Aembed=yes&%3Atoolbar=no)
+
+Only addresses categorized as "Vacant Lot" or as "Vacant Lot per Inspection" in the "Last Confirmed Vacant Status" column are considered. The dataset was uploaded to [OCTO's Master Address Repository](https://mar2.data.dc.gov/batch-geocode) to obtain latitude-longitude coordinates for those addresses. Only those with a 92% match score or higher (as recommended by OCTO) were included in the analysis.
+
+**Data Measure**: Share of census tract within a 2-minute walk of a vacant lot
+
+```{r driver9.1, echo =  FALSE}
+
+
+### DRIVER 9: COMMUNITY SAFETY
+
+
+## Indicator 9.1: Proximity to vacant lots
+
+# read in data from DOB dashboard
+for_MAR_9_1 <- read.csv("C:/Hacktoberfest/Data/1.Export Data to Excel 05132024.csv") %>%
+  janitor::clean_names() %>%
+  # only keep vacant lots
+  filter(last_confirmed_vacant_status %in% c("Vacant Lot", "Vacant Lot per Inspection")) %>%
+  # keep address and run through MAR
+  select(ADDRESS = address) %>%
+  mutate(CITY = "WASHINGTON",
+         STATE = "DC",
+         ZIPCODE = NA_character_,
+         ID = row_number()) %>%
+  select(ID, everything())
+
+# run through OCTO's MAR
+#write.csv(for_MAR_9_1, "C:/Hacktoberfest/Output/for_MAR_9_1.csv", row.names = FALSE, na = "")
+
+# read in OCTO MAR output and use recommended match score threshold of 92% or higher
+from_MAR_9_1 <- read.xlsx("C:/Hacktoberfest/Output/for_MAR_9_1_Geocoded.xlsx",
+                          sheet = "data") %>%
+  filter(MAR_SCORE >= 92) %>%
+  # keep only vars needed to merge back to original
+  select(ADDRESS, LATITUDE = MAR_LATITUDE, LONGITUDE = MAR_LONGITUDE) %>%
+  rename(NAME = ADDRESS) %>%
+  mutate(type = "Vacant Lots") %>%
+  # remove places that fail in ORS call
+  filter(!NAME %in% c("1319 SOUTH CAPITOL ST SW")) %>%
+  # convert into an sf object
+  mutate(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  st_as_sf(coords = c("LONGITUDE", "LATITUDE"), crs = 4326)
+
+vacant_lots_ors <- from_MAR_9_1 %>%
+  # remove problem lat-lon
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates
+  distinct()
+
+# find the boundary of 5-minute walking distance
+vacant_lots_boundary <- create_boundary(vacant_lots_ors, two_min)
+
+# create share of census tract within walking distance measure
+d9.1_vacant_lots <- create_measure(vacant_lots_boundary, m9.1_vacant_lots)
+
+# side by side map of points and walking distance boundaries
+create_mapview(from_MAR_9_1, vacant_lots_boundary, "Vacant Lots (Layer 1) | 2-Min Walking Distance Boundaries (Layer 2)")
+
+# export as CSV for now so can skip ORS
+#write.csv(d9.1_vacant_lots, "C:/Hacktoberfest/Output/d9.1_vacant_lots.csv", row.names = FALSE)
+
+# read in CSV for now so can skip ORS
+# d9.1_vacant_lots <- read.csv("C:/Hacktoberfest/Output/d9.1_vacant_lots.csv") %>%
+#   mutate(GEOID = as.character(GEOID))
+
+# census tract map of created measure
+create_ggplot(d9.1_vacant_lots, m9.1_vacant_lots, 
+              "Indicator 9.1: Share within 2-Minute Walk to Vacant Lots",
+              "DOB Public Dashboard: Vacant Properties (accessed 5/13/2024)")
+
+# histogram of created measure
+create_histogram(d9.1_vacant_lots, m9.1_vacant_lots, 
+              "Indicator 9.1: Histogram of Census Tract Values",
+              "Share of census tract within 2-minute walk to vacant lots")
+
+```
+
+
+## Indicator 2: Streetlight coverage
+
+This indicator considers streetlight coverage as a measure of community safety in the District of Columbia. Data are read in from Open Data DC.
+
+* [Sidewalks](https://opendata.dc.gov/datasets/2347fa1f3fd9412dbf11aa6441ddca8b_83/about)
+* [Street Lights](https://opendata.dc.gov/datasets/DCGIS::street-lights/about)
+
+The indicator measures the share of sidewalk area within 30 feet of a street light. Urban Institute's [Redefining Walkability](https://www.urban.org/research/publication/redefining-walkability) tool uses the same streetlight coverage score and they consider 30 feet to be a reasonable distance for night-time illumination.
+
+**Data Measure**: Share of census tract's sidewalk area that is within 30 feet of a streetlight
+
+```{r driver9.2, echo =  FALSE}
+
+
+## Indicator 9.2: Streetlight coverage
+
+street_lights <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Transportation_Signs_Signals_Lights_WebMercator/MapServer/90/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(CROSSSTREET) %>%
+  st_transform(crs = 6487)
+
+sidewalks <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Transportation_WebMercator/MapServer/83/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(OBJECTID) %>%
+  st_transform(crs = 6487)
+
+# create buffer of 30 feet around street lights
+light_buffer_distance <- units::set_units(30, "feet")
+light_buffer_distance <- light_buffer_distance %>%
+  units::set_units("meters")
+
+# add 30 feet buffer to streetlights and then create a union
+buffer_streetlights <- st_buffer(street_lights, dist = light_buffer_distance) %>%
+  st_union()
+
+# dataframe 1: intersect sidewalk dataframe with streetlight buffer
+intersect_sidewalk <- st_intersection(sidewalks, buffer_streetlights)
+  
+# now do intersection with census tract boundaries, take area
+intersect_sidewalk_tract <- intersect_sidewalk %>%
+  st_intersection(dc_tracts) %>%
+  # calculate sidewalk area
+  mutate(sidewalk_streetlight_area = st_area(geometry)) %>%
+  st_drop_geometry() %>%
+  # now intersect streetlight boundary
+  group_by(GEOID) %>%
+  summarize(sidewalk_streetlight_area = sum(sidewalk_streetlight_area, na.rm = TRUE)) %>%
+  ungroup()
+
+# dataframe 2: intersect sidewalk dataframe with census tracts, find area
+sidewalk_area <- st_intersection(sidewalks, dc_tracts) %>%
+  mutate(sidewalk_area = st_area(geometry)) %>%
+  st_drop_geometry() %>%
+  # now intersect streetlight boundary
+  group_by(GEOID) %>%
+  summarize(sidewalk_area = sum(sidewalk_area, na.rm = TRUE)) %>%
+  ungroup()
+
+
+# merge two dataframes together
+d9.2_streetlights <- sidewalk_area %>%
+  left_join(intersect_sidewalk_tract, by = "GEOID") %>%
+  mutate(sidewalk_area = gsub("\\[.*\\]", "", sidewalk_area),
+         sidewalk_streetlight_area = gsub("\\[.*\\]", "", sidewalk_streetlight_area)) %>%
+  mutate(sidewalk_area = as.numeric(sidewalk_area),
+         sidewalk_streetlight_area = as.numeric(sidewalk_streetlight_area)) %>%
+  mutate(m9.2_streetlights = sidewalk_streetlight_area / sidewalk_area) %>%
+  select(GEOID, m9.2_streetlights)
+
+create_ggplot(d9.2_streetlights, m9.2_streetlights, 
+              "Indicator 9.2: Share of Sidewalks Covered by Streetlights",
+              "Open Data DC")  
+
+# histogram of created measure
+create_histogram(d9.2_streetlights, m9.2_streetlights, 
+              "Indicator 9.2: Histogram of Census Tract Values",
+              "Share of census tract sidewalk area covered by streetlights")
+
+```  
+  
+  
+## Indicator 3: Proximity to police department locations  
+  
+This indicator considers proximity to police departments in the District of Columbia. Data are read in from Open Data DC.
+
+* [Police Stations](https://opendata.dc.gov/datasets/police-stations/explore)
+
+**Data Measure**: Share of census tract within a 15-minute walk of a police department
+  
+```{r driver9.3, echo =  FALSE}
+  
+## Indicator 9.3: Proximity to police dept locations
+
+police_department <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Public_Safety_WebMercator/MapServer/11/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(NAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Police Station") 
+
+police_department_ors <- police_department %>%
+  # remove problem lat-lon
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct() 
+
+# find the boundary of 10-minute walking distance
+police_department_boundary <- create_boundary(police_department_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d9.3_police <- create_measure(police_department_boundary, m9.3_police)
+
+# side by side map of points and walking distance boundaries
+create_mapview(police_department, police_department_boundary, "Police Departments (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d9.3_police, m9.3_police, 
+              "Indicator 9.3: Share within 15-Minute Walk to Police Departments",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d9.3_police, m9.3_police, 
+              "Indicator 9.3: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to police departments")
+
+```
+
+
+## Indicator 4: Proximity to fire stations
+
+This indicator considers proximity to fire stations in the District of Columbia. Data are read in from Open Data DC.
+
+* [Fire Stations](https://opendata.dc.gov/datasets/fire-stations/explore)
+
+**Data Measure**: Share of census tract within a 15-minute walk of a fire station
+
+```{r driver9.4, echo =  FALSE}
+
+## Indicator 9.4: Proximity to fire houses/emergency response vehicles
+
+fire_stations <- st_read("https://maps2.dcgis.dc.gov/dcgis/rest/services/DCGIS_DATA/Public_Safety_WebMercator/MapServer/6/query?outFields=*&where=1%3D1&f=geojson", quiet = TRUE) %>%
+  select(NAME, ADDRESS, LATITUDE, LONGITUDE) %>%
+  mutate(type = "Fire Station",
+         lat2 = LATITUDE,
+         lon2 = LONGITUDE) %>%
+  # fix a wrong lat-lon pair
+  mutate(LATITUDE = case_when(NAME == "Homeland Security Special Operations" ~ lon2,
+                              TRUE ~ LATITUDE),
+         LONGITUDE = case_when(NAME == "Homeland Security Special Operations" ~ lat2,
+                               TRUE ~ LONGITUDE))
+  
+fire_stations_ors <- fire_stations %>%
+  # remove problem lat-lon
+  rename(lon = LONGITUDE,
+         lat = LATITUDE) %>%
+  select(lon, lat) %>%
+  st_drop_geometry() %>%
+  # remove duplicates 
+  distinct()
+  
+# find the boundary of 15-minute walking distance
+fire_stations_boundary <- create_boundary(fire_stations_ors, fifteen_min)
+
+# create share of census tract within walking distance measure
+d9.4_fire_stations <- create_measure(fire_stations_boundary, m9.4_fire_stations)
+
+# side by side map of points and walking distance boundaries
+create_mapview(fire_stations, fire_stations_boundary, "Fire Stations (Layer 1) | 15-Min Walking Distance Boundaries (Layer 2)")
+  
+# census tract map of created measure
+create_ggplot(d9.4_fire_stations, m9.4_fire_stations, 
+              "Indicator 9.4: Share within 15-Minute Walk to Fire Departments",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d9.4_fire_stations, m9.4_fire_stations, 
+              "Indicator 9.4: Histogram of Census Tract Values",
+              "Share of census tract within 15-minute walk to fire departments")
+
+```
+
+## Indicator 5: Proximity to High Injury Network Corridors
+
+This indicator considers proximity to High Injury Network Corridors in the District of Columbia. Data are read in from Open Data DC.
+
+* [High Injury Network Corridors](https://dcgis.maps.arcgis.com/home/item.html?id=765f7d3d69d24fb69be8f4e4e482fe60)
+
+**Data Measure**: Share of census tract within 250 feet of a High Injury Network Corridor
+
+```{r driver9.5, echo =  FALSE}
+
+# using Vision Zero high injury network: https://visionzero.dc.gov/pages/overview#hin
+# links here: https://dcgis.maps.arcgis.com/home/item.html?id=765f7d3d69d24fb69be8f4e4e482fe60
+
+library(arcgis)
+
+# FeatureLayer API Endpoint
+base_url <- "https://services.arcgis.com/neT9SoYxizqTHZPH/ArcGIS/rest/services/All_Modes_HIN_Corridors/FeatureServer/0"
+
+HIN_corridors <- arc_read(base_url) %>%
+  mutate(type = case_when(Tier_1 == 1  ~ "Tier 1",
+                          Tier_2 == 1 ~ "Tier 2",
+                          Tier_3 == 1 ~ "Tier 3",
+                          TRUE ~ "Other")) %>%
+  rename(NAME = RouteName) %>%
+  st_transform(6487)
+
+# create a buffer of 250 feet around high injury network
+buffer_distance_250_feet <- units::set_units(250, "feet")
+buffer_distance_250_feet <- buffer_distance_250_feet %>%
+  units::set_units("meters")
+
+HIN_250_feet <- HIN_corridors %>%
+  st_buffer(buffer_distance_250_feet) %>%
+  st_union() 
+  
+# create share of census tract within 250 feet of HIN
+d9.5_HIN <- create_measure(HIN_250_feet, m9.5_HIN)
+
+# side by side map of points and walking distance boundaries
+create_mapview(HIN_corridors, HIN_250_feet, "High Injury Network (Layer 1) | 250 Feet Boundaries (Layer 2)")
+
+# census tract map of created measure
+create_ggplot(d9.5_HIN, m9.5_HIN, 
+              "Indicator 9.5: Share within 250 Feet of a High Injury Network",
+              "Open Data DC")
+
+# histogram of created measure
+create_histogram(d9.5_HIN, m9.5_HIN, 
+              "Indicator 9.5: Histogram of Census Tract Values",
+              "Share of census tract within 250 feet of a High Injury Network")
+
+```
+
+## Driver 9 Summary Statistics
+
+```{r driver 9 summary, echo =  FALSE}
+
+d9.1_vacant_lots %>%
+  left_join(d9.2_streetlights, by= "GEOID") %>%
+  left_join(d9.3_police, by= "GEOID") %>%
+  left_join(d9.4_fire_stations, by= "GEOID") %>%
+  left_join(d9.5_HIN, by= "GEOID") %>%
+  # pivot longer so can do summary stats by measure
+  pivot_longer(
+    cols = m9.1_vacant_lots:m9.5_HIN,
+    names_to = "id",
+    values_to = "value"
+  ) %>%
+  group_by(id) %>%
+  summarize(min = min(value, na.rm = TRUE),
+            max = max(value, na.rm = TRUE),
+            p25 = quantile(value, 0.25, na.rm = TRUE),
+            p50 = quantile(value, 0.50, na.rm = TRUE),
+            p75 = quantile(value, 0.75, na.rm = TRUE)) %>%
+  ungroup() %>%
+  mutate(indicator = case_when(id == "m9.1_vacant_lots" ~ "9.1: Share of census tract within 2-minute walk to vacant lots",
+                               id == "m9.2_streetlights" ~ "9.2: Share of census tract sidewalks covered by streetlights",
+                               id == "m9.3_police" ~ "9.3: Share of census tract within 15-minute walk to police departments",
+                               id == "m9.4_fire_stations" ~ "9.4: Share of census tract within 15-minute walk to fire departments",
+                               id == "m9.5_HIN" ~ "9.5: Share of census tract within 250 feet of a High Injury Network")) %>%
+  select(indicator, min, max, p25, p50, p75) %>%
+  gt() %>%
+  cols_label(
+    indicator = md("**Indicator**"),
+    min = md("**Lowest value**"),
+    max = md("**Highest value**"),
+    p25 = md("**25th percentile**"),
+    p50 = md("**Median**"),
+    p75 = md("**75th percentile**")
+  ) %>%
+  opt_table_font(font = "Lato") %>%
+  tab_options(table.font.size = 11) %>%
+  cols_align(align = "center", columns = everything()) %>%
+  fmt_percent(columns = min:p75, decimals = 1) %>%
+  tab_header(md("**Driver 9: Summary of Indicators Across Census Tracts**")) %>%
+  gt::data_color(columns = min, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = max, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p25, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p50, colors = "ggsci::blue_material") %>%
+  gt::data_color(columns = p75, colors = "ggsci::blue_material")
+ 
+
+```
+
+
+# Standardize and add weights 
+
+The data tool compiles the measures within each Driver to be able to compare each of DC's 206 census tracts against each other. The following data steps are taken:
+
+1. **Flip the scale for any indicators that have a negative correlation with health outcomes**
+
+Some measures as constructed have a negative correlation with health outcomes in the District; that is, higher values for the measure are associated with worse outcomes. So that all measures move in the same direction (i.e. higher values are associated with better health outcomes), the scale for these measures must be reversed. Those measures with negative correlations are:
+
+* Indicator 3.2: Proximity to check cashing institutions
+* Indicator 4.4: Proximity to vacant or blighted houses
+* Indicator 5.5: Sidewalk quality
+* Indicator 5.6: Parking availability
+* Indicator 6.2: Low Food Access Areas
+* Indicator 6.6: Proximity to liquor stores
+* Indicator 8.5: Flood zones
+* Indicator 9.1: Proximity to vacant lots
+* Indicator 9.5: Proximity to High Injury Network Corridors
+
+2. **Standardize measures across census tracts, so that each census tract has a measure value between 0 and 1**
+
+By standardizing measures across census tracts to fall between 0 and 1, measures can be more easily compared across the District. By standardizing between 0 and 1, values can also be interpreted as percentiles.
+
+For example, for the proximity to schools measure, if after standardizing a particular census tract has a value of 0.70, that value can be interpreted as the 70th percentile. That is, 70% of the other 205 census tracts in DC are farther away from schools compared to that census tract, and 30% of the other 205 census tracts are closer to schools.
+
+3. **Within each Driver, take a weighted average of the standardized measures to create an overall Driver index value for each census tract.**
+
+Using Driver 1: Education as an example and the following weights, let's assume that a hypothetical census tract has the following standardized values.
+
+<table>
+
+Indicator                                Weight      Value for a Hypothetical Census Tract
+-------------------------------------    ---------   --------------------------------------
+1.1 Proximity to school                  20%         0.22
+1.2 Proximity to modernized schools      10%         0.89
+1.3 Proximity to playgrounds             5%          0.12
+1.4 Proximity to crossing guards         12.5%       0.36
+1.5 Safe routes to school                12.5%       0.27
+1.6 Proximity to libraries               10%         0.68
+1.7 Access to wireless hotspots          7.5%        0.29
+1.8 Access to broadband internet         7.5%        0.83
+1.9 Proximity to recreation centers      15%         0.22
+
+</table>
+
+The index value for Driver 1: Education for this hypothetical census tract would be a weighted average:
+
+$$Driver 1_{i} = \frac{0.22*(0.20)+0.89*(0.10)+0.12*(0.05)+0.36*(0.125)+0.27*(0.125)+0.68*(0.10)+0.29*(0.075)+0.83*(0.075)+0.22*(0.15)}{0.20+0.10+0.05+0.125+0.125+0.10+0.075+0.075+0.15}=0.403$$
+
+4. **For each Driver, re-standardize Driver index values between 0 and 1**
+
+By re-standardizing the weighted averages, we allow for comparisons across census tracts. These re-standardized values are the final Driver percentile values for each census tract.
+
+5. **Create an Overall Driver score that represents a weighted average of the 9 individual Drivers using equal weights.**
+
+Lastly, we create an Overall Driver score by taking a weighted average of the 9 individual Drivers, using equal weights, and then re-standardizing so that the values can be interpreted as percentiles.
+
+```{r standardize and weighting, echo =  FALSE}
+
+# all measures into one dataframe
+all_measures <- d1.1_schools %>%
+  left_join(d1.2_quality, by = "GEOID") %>%
+  left_join(d1.3_playgrounds, by = "GEOID") %>%
+  left_join(d1.4_crossing_guards, by = "GEOID") %>%
+  left_join(d1.5_safe_passage, by = "GEOID") %>%
+  left_join(d1.6_library, by = "GEOID") %>%
+  left_join(d1.7_wireless_hotspot, by = "GEOID") %>%
+  left_join(d1.8_broadband, by = "GEOID") %>%
+  left_join(d1.9_recreation_center, by = "GEOID") %>%
+  left_join(d2.1_commute, by = "GEOID") %>%
+  left_join(d3.1_banks, by = "GEOID") %>%
+  left_join(d3.2_check_cashing, by = "GEOID") %>%
+  left_join(d4.1_quality, by = "GEOID") %>%
+  left_join(d4.2_share_since_1970, by = "GEOID") %>%
+  left_join(d4.3_affordable, by = "GEOID") %>%
+  left_join(d4.4_vacant_buildings, by = "GEOID") %>%
+  left_join(d5.1_buses, by = "GEOID") %>%
+  left_join(d5.2_metro, by = "GEOID") %>%
+  left_join(d5.3_capital_bikeshare, by = "GEOID") %>%
+  left_join(d5.4_bike_lanes, by = "GEOID") %>%
+  left_join(d5.5_sidewalk_quality, by = "GEOID") %>%
+  left_join(d5.6_parking, by = "GEOID") %>%
+  left_join(d6.1_grocery_store, by = "GEOID") %>%
+  left_join(d6.2_low_food_access, by = "GEOID") %>%
+  left_join(d6.3_farmers_markets, by = "GEOID") %>%
+  left_join(d6.4_healthy_corner_store, by = "GEOID") %>%
+  left_join(d6.5_restaurants, by = "GEOID") %>%
+  left_join(d6.6_liquor_store, by = "GEOID") %>%
+  left_join(d7.1_health_care, by = "GEOID") %>%
+  left_join(d7.2_mental_health, by = "GEOID") %>%
+  left_join(d8.1_urban_tree_canopy, by = "GEOID") %>%
+  left_join(d8.2_parks, by = "GEOID") %>%
+  left_join(d8.3_trails, by = "GEOID") %>%
+  left_join(d8.4_land_use, by = "GEOID") %>%
+  left_join(d8.5_positive, by = "GEOID") %>%
+  left_join(d8.6_flood_plains, by = "GEOID") %>%
+  left_join(d9.1_vacant_lots, by = "GEOID") %>%
+  left_join(d9.2_streetlights, by = "GEOID") %>%
+  left_join(d9.3_police, by = "GEOID") %>%
+  left_join(d9.4_fire_stations, by = "GEOID") %>%
+  left_join(d9.5_HIN, by = "GEOID") 
+
+# export raw values
+write.csv(all_measures, "C:/Hacktoberfest/Output/all_measures.csv", row.names = FALSE)
+
+all_measures <- read.csv("C:/Hacktoberfest/Output/all_measures.csv") %>%
+  mutate(GEOID = as.character(GEOID))
+
+  # 3.2 check cashing places
+  # 4.4 vacant buildings
+  # 5.5 sidewalk repair
+  # 5.6 parking availabilty
+  # 6.2 low food access area
+  # 6.6 liquor stores
+  # 8.5 flood plains
+  # 9.1 proximity to vacant lots
+  # 9.5 high injury network
+
+# create a function that does the standardizing to [0,1] here. 
+scale_column <- function(x) {
+  ifelse(is.na(x), NA, rank(x) / sum(!is.na(x)))
+}
+
+# flip negative correlation measures
+all_measures_corrected <- all_measures %>%
+  mutate(m3.2_check_cashing = 1 - m3.2_check_cashing,
+         m4.4_vacant_buildings = 1 - m4.4_vacant_buildings,
+         m5.5_sidewalk_quality = 1 - m5.5_sidewalk_quality,
+         m5.6_parking = 1 - m5.6_parking,
+         m6.2_low_food_access = 1 - m6.2_low_food_access,
+         m6.6_liquor_store = 1 - m6.6_liquor_store,
+         m8.6_flood_plains = 1 - m8.6_flood_plains,
+         m9.1_vacant_lots = 1 - m9.1_vacant_lots,
+         m9.5_HIN = 1 - m9.5_HIN) %>%
+  # rescale to percentiles
+  mutate_at(vars(m1.1_schools:m9.5_HIN), list(scale = scale_column)) %>%
+  # create weights
+  mutate(w1.1 = ifelse(is.na(m1.1_schools),NA, 0.20),
+         w1.2 = ifelse(is.na(m1.2_quality),NA, 0.10),
+         w1.3 = ifelse(is.na(m1.3_playgrounds),NA, 0.05),
+         w1.4 = ifelse(is.na(m1.4_crossing_guards),NA, 0.125),
+         w1.5 = ifelse(is.na(m1.5_safe_passage),NA, 0.125),
+         w1.6 = ifelse(is.na(m1.6_library),NA, 0.10),
+         w1.7 = ifelse(is.na(m1.7_wireless_hotspot),NA, 0.075),
+         w1.8 = ifelse(is.na(m1.8_broadband),NA, 0.075),
+         w1.9 = ifelse(is.na(m1.9_recreation_center),NA, 0.15),
+         w2.1 = ifelse(is.na(m2.1_commute),NA, 1),
+         w3.1 = ifelse(is.na(m3.1_banks),NA, 0.50),
+         w3.2 = ifelse(is.na(m3.2_check_cashing),NA, 0.50),
+         w4.1 = ifelse(is.na(m4.1_quality),NA, 0.25),
+         w4.2 = ifelse(is.na(m4.2_share_since_1970),NA, 0.25),
+         w4.3 = ifelse(is.na(m4.3_affordable),NA, 0.25),
+         w4.4 = ifelse(is.na(m4.4_vacant_buildings),NA, 0.25),
+         w5.1 = ifelse(is.na(m5.1_buses),NA, 0.165),
+         w5.2 = ifelse(is.na(m5.2_metro),NA, 0.165),
+         w5.3 = ifelse(is.na(m5.3_capital_bikeshare),NA, 0.113),
+         w5.4 = ifelse(is.na(m5.4_bike_lanes),NA, 0.113),
+         w5.5 = ifelse(is.na(m5.5_sidewalk_quality),NA, 0.114),
+         w5.6 = ifelse(is.na(m5.6_parking),NA, 0.33),
+         w6.1 = ifelse(is.na(m6.1_grocery_store),NA, 0.125),
+         w6.2 = ifelse(is.na(m6.2_low_food_access),NA, 0.125),
+         w6.3 = ifelse(is.na(m6.3_farmers_markets),NA, 0.20),
+         w6.4 = ifelse(is.na(m6.4_healthy_corner_store),NA, 0.25),
+         w6.5 = ifelse(is.na(m6.5_restaurants),NA, 0.20),
+         w6.6 = ifelse(is.na(m6.6_liquor_store),NA, 0.10),
+         w7.1 = ifelse(is.na(m7.1_health_care),NA, 0.75),
+         w7.2 = ifelse(is.na(m7.2_mental_health),NA, 0.25),
+         w8.1 = ifelse(is.na(m8.1_urban_tree_canopy),NA, 0.20),
+         w8.2 = ifelse(is.na(m8.2_parks),NA, 0.20),
+         w8.3 = ifelse(is.na(m8.3_trails),NA, 0.20),
+         w8.4 = ifelse(is.na(m8.4_land_use),NA, 0.10),
+         w8.5 = ifelse(is.na(m8.5_positive),NA, 0.10),
+         w8.6 = ifelse(is.na(m8.6_flood_plains),NA, 0.20),
+         w9.1 = ifelse(is.na(m9.1_vacant_lots),NA, 0.14),
+         w9.2 = ifelse(is.na(m9.2_streetlights),NA, 0.24),
+         w9.3 = ifelse(is.na(m9.3_police),NA, 0.19),
+         w9.4 = ifelse(is.na(m9.4_fire_stations),NA, 0.19),
+         w9.5 = ifelse(is.na(m9.5_HIN),NA, 0.24)) %>%
+  # NA corrections
+  mutate(w1.1 = case_when(is.na(m1.8_broadband) ~ w1.1 + (0.075/8),
+                          TRUE ~ w1.1),
+         w1.2 = case_when(is.na(m1.8_broadband) ~ w1.2 + (0.075/8),
+                          TRUE ~ w1.2),
+         w1.3 = case_when(is.na(m1.8_broadband) ~ w1.3 + (0.075/8),
+                          TRUE ~ w1.3),
+         w1.4 = case_when(is.na(m1.8_broadband) ~ w1.4 + (0.075/8),
+                            TRUE ~ w1.4),
+         w1.5 = case_when(is.na(m1.8_broadband) ~ w1.5 + (0.075/8),
+                            TRUE ~ w1.5),
+         w1.6 = case_when(is.na(m1.8_broadband) ~ w1.6 + (0.075/8),
+                          TRUE ~ w1.6),
+         w1.7 = case_when(is.na(m1.8_broadband) ~ w1.7 + (0.075/8),
+                          TRUE ~ w1.7),
+         w1.9 = case_when(is.na(m1.8_broadband) ~ w1.9 + (0.075/8),
+                           TRUE ~ w1.9),
+         w4.1 = case_when(!is.na(m4.1_quality) & is.na(m4.2_share_since_1970) & is.na(m4.3_affordable) ~ w4.1 + (0.50/2),
+                          TRUE ~ w4.1),
+         w4.2 = case_when(is.na(m4.1_quality) & !is.na(m4.2_share_since_1970) & !is.na(m4.3_affordable) & !is.na(m4.4_vacant_buildings) ~ w4.2 + (0.25/3),
+                          TRUE ~ w4.2),
+         w4.3 = case_when(is.na(m4.1_quality) & !is.na(m4.2_share_since_1970) & !is.na(m4.3_affordable) & !is.na(m4.4_vacant_buildings) ~ w4.3 + (0.25/3),
+                          TRUE ~ w4.3),
+         w4.4 = case_when(!is.na(m4.1_quality) & is.na(m4.2_share_since_1970) & is.na(m4.3_affordable) ~ w4.4 + (0.50/2),
+                          is.na(m4.1_quality) & !is.na(m4.2_share_since_1970) & !is.na(m4.3_affordable) & !is.na(m4.4_vacant_buildings) ~ w4.4 + (0.25/3),
+                          TRUE ~ w4.4)) %>%
+  # create drivers
+  mutate(d1 = m1.1_schools_scale * w1.1 + m1.2_quality_scale * w1.2 + m1.3_playgrounds_scale * w1.3 + m1.4_crossing_guards_scale * w1.4 + m1.5_safe_passage_scale * w1.5 + m1.6_library_scale * w1.6 + m1.7_wireless_hotspot_scale * w1.7 + m1.8_broadband_scale * w1.8 + m1.9_recreation_center_scale * w1.9,
+         d2 = m2.1_commute_scale * w2.1,
+         d3 = m3.1_banks_scale * w3.1 + m3.2_check_cashing_scale * w3.2,
+         d4 = m4.1_quality_scale * w4.1 + m4.2_share_since_1970_scale * w4.2 + m4.3_affordable_scale * w4.3 + m4.4_vacant_buildings_scale * w4.4,
+         d5 = m5.1_buses_scale * w5.1 + m5.2_metro_scale * w5.2 + m5.3_capital_bikeshare_scale * w5.3 + m5.4_bike_lanes_scale * w5.4 + m5.5_sidewalk_quality_scale * w5.5 + m5.6_parking_scale * w5.6,
+         d6 = m6.1_grocery_store_scale * w6.1 + m6.2_low_food_access_scale * w6.2 + m6.3_farmers_markets_scale * w6.3 + m6.4_healthy_corner_store_scale * w6.4 + m6.5_restaurants_scale * w6.5 + m6.6_liquor_store * w6.6,
+         d7 = m7.1_health_care_scale * w7.1 + m7.2_mental_health_scale * w7.2,
+         d8 = m8.1_urban_tree_canopy_scale * w8.1 + m8.2_parks_scale * w8.2 + m8.3_trails_scale * w8.3 + m8.4_land_use_scale * w8.4 + m8.5_positive_scale * w8.5 + m8.6_flood_plains_scale * w8.6,
+         d9 = m9.1_vacant_lots_scale * w9.1 + m9.2_streetlights_scale * w9.2 + m9.3_police_scale * w9.3 + m9.4_fire_stations_scale * w9.4 + m9.5_HIN_scale * w9.5) %>%
+  # correct NA's
+  mutate(d1 = case_when(is.na(d1) ~ m1.1_schools_scale * w1.1 + m1.2_quality_scale * w1.2 + m1.3_playgrounds_scale * w1.3 + m1.4_crossing_guards_scale * w1.4 + m1.5_safe_passage_scale * w1.5 + m1.6_library_scale * w1.6 + m1.7_wireless_hotspot_scale * w1.7 + m1.9_recreation_center_scale * w1.9,
+                        TRUE ~ d1),
+         d4 = case_when(is.na(d4) & !is.na(m4.1_quality) & is.na(m4.2_share_since_1970) & is.na(m4.3_affordable) ~ m4.1_quality_scale * w4.1 + m4.4_vacant_buildings_scale * w4.4,
+                        is.na(d4) & is.na(m4.1_quality) & !is.na(m4.2_share_since_1970) & !is.na(m4.3_affordable) & !is.na(m4.4_vacant_buildings) ~ m4.2_share_since_1970_scale * w4.2 + m4.3_affordable_scale * w4.3 + m4.4_vacant_buildings_scale * w4.4,
+                        TRUE ~ d4)) %>%
+  # restandardize
+  mutate_at(vars(d1:d9), list(scale = scale_column)) %>%
+  # create overall driver score
+  mutate(doverall = d1_scale * (1/9) + d2_scale * (1/9) + d3_scale * (1/9) + d4_scale * (1/9) + d5_scale * (1/9) + d6_scale * (1/9) + d7_scale * (1/9) + d8_scale * (1/9) + d9_scale * (1/9)) %>%
+  # restandardize
+  mutate_at(vars(doverall), list(scale = scale_column)) %>%
+  rename(doverall_scale = scale) %>%
+  # create priority census tract, which is 1 if overall percentile is below 10%
+  mutate(priority = case_when(doverall_scale <= 0.10 ~ 1,
+                              TRUE ~ 0))
+
+final_export <- all_measures_corrected %>%
+  select(GEOID, m1.1_schools:m9.5_HIN_scale, d1_scale:d9_scale, doverall_scale, priority)
+
+write.csv(final_export, "C:/Hacktoberfest/Output/final_output.csv", row.names = FALSE)
+
+
+```
+
+## Driver Score Maps
+
+We provide a census tract map for each Driver below, with each census tract's percentile value visualized. 
+
+The lower the percentile value (and the lighter the shade of blue) for a given census tract, the lower the score that census tract received for that Driver - and thus, the greater prioritization the tool suggests for that census tract. The higher the percentile value (and the darker the shade of blue), the greater the opportunity that census tract has.
+
+```{r final driver map, echo =  FALSE}
+
+# new ggplot function with colors not reversed
+# create_ggplot_driver <- function(df, colname, title, source) {
+#   
+#   set_urbn_defaults(style = "map")
+# 
+#   # quote the column name so it gets passed into dplyr
+#   colname <- enquo(colname) 
+#   
+#   dc_tracts %>%
+#     full_join(df, by = c("GEOID")) %>%
+#     ggplot() + 
+#     geom_sf(aes(fill = !!colname)) + 
+#     scale_fill_gradient(
+#       labels = scales::percent_format(),
+#       name = NULL,
+#       breaks=c(0,0.25,0.5,0.75,1),
+#       limits=c(0,1),
+#       na.value = "#d2d2d2") + 
+#     geom_sf(data = dc_wards, color = "white", fill = "transparent", linewidth = 1) +
+#     theme(legend.direction = "vertical", legend.box = "vertical",
+#           plot.caption = element_markdown(hjust = 0)) + 
+#     ggtitle(title) + 
+#     labs(caption = paste("**Source:**", source)) 
+#   
+# }
+
+# census tract map of created measure
+create_ggplot(all_measures_corrected, d1_scale, 
+              "Driver 1: Education (Percentiles)",
+              "Open Data DC, 2017-2021 5-year ACS")  
+
+create_ggplot(all_measures_corrected, d2_scale, 
+              "Driver 2: Employment (Percentiles)",
+              "2017-2021 5-year ACS")  
+
+create_ggplot(all_measures_corrected, d3_scale, 
+              "Driver 3: Income (Percentiles)",
+              "Open Data DC")  
+
+create_ggplot(all_measures_corrected, d4_scale, 
+              "Driver 4: Housing (Percentiles)",
+              "Open Data DC, 2017-2021 5-year ACS")  
+
+create_ggplot(all_measures_corrected, d5_scale, 
+              "Driver 5: Transportation (Percentiles)",
+              "Open Data DC")  
+
+create_ggplot(all_measures_corrected, d6_scale, 
+              "Driver 6: Food Environment (Percentiles)",
+              "Open Data DC, DC Health")  
+
+create_ggplot(all_measures_corrected, d7_scale, 
+              "Driver 7: Medical Care (Percentiles)",
+              "Open Data DC, DBH")  
+
+create_ggplot(all_measures_corrected, d8_scale, 
+              "Driver 8: Outdoor Environment (Percentiles)",
+              "Open Data DC")  
+
+create_ggplot(all_measures_corrected, d9_scale, 
+              "Driver 9: Community Safety (Percentiles)",
+              "Open Data DC")  
+
+# Overall driver with priority census tracts in yellow
+
+```
+
+## Overall Driver Score Map
+
+We also provide a map for the Overall Driver score, which represents a weighted average of the 9 individual Drivers, using equal weights. 
+
+The lower the percentile value (and the lighter the shade of blue) for a given census tract, the lower the score that census tract received for the Overall Driver - and thus, the greater prioritization the tool suggests for that census tract. The higher the percentile value (and the darker the shade of blue), the greater the opportunity that census tract has.
+
+We also display census tracts with an Overall Driver Score in the bottom 10th percentile using a red outline. These are the census tracts with the 
+
+```{r final overall driver map, echo =  FALSE}
+
+set_urbn_defaults(style = "map")
+
+dc_tracts %>%
+  full_join(all_measures_corrected, by = c("GEOID")) %>%
+  ggplot() + 
+  geom_sf(aes(fill = doverall_scale)) + 
+  scale_fill_gradientn(
+      labels = scales::percent_format(),
+      name = NULL,
+      breaks=c(0,0.25,0.5,0.75,1),
+      limits=c(0,1),
+      na.value = "#d2d2d2"
+      ) + 
+  geom_sf(data = dc_wards, color = "white", fill = "transparent", linewidth = 1) +
+  geom_sf(data = . %>% filter(priority == 1), aes(color = "red"), color = "red", fill = NA) + 
+  theme(legend.direction = "vertical", legend.box = "vertical",
+        plot.caption = element_markdown(hjust = 0)) + 
+  ggtitle("Overall Driver (Percentiles)", 
+          subtitle = "Census tracts with an Overall Driver Score in the bottom 10th percentile in red outline") + 
+  labs(caption = paste("**Source:**", "Weighted average of the nine Driver scores")) 
+
+
+```
+
+## Within-Driver Correlation
+
+Lastly, we show the extent of within-Driver correlation among the individual indicators. Ideally, indicators within a Driver would not be strongly correlated (either positively or negatively) with each other; a strong correlation between two indicators would suggest similar relationships with the built environment and health outcomes in the District, and by including both indicators, those relationships would in a sense be overrepresented in a given Driver.
+
+Within-driver correlations are displayed using correlation heatmaps. Each indicator is correlated with every other indicator in its Driver using the Pearson correlation coefficient (r), which ranges in values from -1 (a strong negative correlation) to +1 (a strong positive correlation). In the heatmaps below, negative correlations are displayed using shades of red (light red is a weak negative correlation and darker shades of red are stronger negative correlations) and positive correlations are displayed using shades of blue (light blue is a weak positive correlation and darker shades of blue are stronger positive correlations). 
+
+To read the heatmap, line-up a row and column to find the correlation between those two indicators. In particular, the heatmaps show that the following indicator pairs have strong correlations (defined as falling between -1 and -0.7 or between 0.7 and 1.0) with each other:
+
+* m1.1 (proximity to schools) and m1.7 (access to wireless hotspots), such that neighborhoods with greater proximity to schools also tend to have greater access to wireless hotspots
+* m1.7 (access to wireless hotspots) and m1.9 (proximity to recreation centers), such that neighborhoods with greater access to wireless hotspots also tend to have greater proximity to recreation centers
+* m5.3 (proximity to Capital Bikeshare locations) and m5.4 (access to bikelanes), such that neighborhoods with greater proximity to Capital Bikeshare locations also tend to have greater access to bikelanes
+
+Since Driver 2 (Employment) only has one indicator, no correlation heatmap is shown for that Driver.
+
+We also provide an analysis of internal consistency within each Driver using Cronbach's alpha and Guttman's lambda.
+
+```{r corr drivers, echo =  FALSE}
+
+set_urbn_defaults(style = "print")
+
+cord1 <- final_export %>%
+  select(m1.1_schools_scale:m1.9_recreation_center_scale) %>%
+  rename(m1.1 = 1,
+         m1.2 = 2,
+         m1.3 = 3,
+         m1.4 = 4,
+         m1.5 = 5,
+         m1.6 = 6,
+         m1.7 = 7,
+         m1.8 = 8,
+         m1.9 = 9) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "measure1") %>%
+  pivot_longer(
+    cols = m1.1:m1.9,
+    names_to = "measure2",
+    values_to = "value") %>%
+ ggplot(aes(measure1, measure2, fill = value, label=round(value,2))) +
+ geom_tile() +
+ labs(x = NULL, y = NULL) +
+ ggtitle("Correlations Among Indicators for Driver 1") +  
+ scale_fill_gradient2(mid="#FBFEF9",low="#A63446",high="#0C6291", limits=c(-1,1)) +
+ geom_text() +
+ scale_x_discrete(expand=c(0,0)) +
+ scale_y_discrete(expand=c(0,0)) + 
+ theme(legend.direction = "vertical", legend.box = "vertical", legend.position = "right") + 
+ guides(fill = guide_legend(reverse = TRUE))
+
+rcor1 <- final_export %>%
+  select(m1.1_schools_scale:m1.9_recreation_center_scale) %>%
+  rename(m1.1 = 1,
+         m1.2 = 2,
+         m1.3 = 3,
+         m1.4 = 4,
+         m1.5 = 5,
+         m1.6 = 6,
+         m1.7 = 7,
+         m1.8 = 8,
+         m1.9 = 9) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  psych::alpha()
+
+totals1 <- rcor1$total %>%
+  as.data.frame() %>%
+  mutate(driver = "Driver 1")
+
+cord3 <- final_export %>%
+  select(m3.1_banks_scale:m3.2_check_cashing_scale) %>%
+  rename(m3.1 = 1,
+         m3.2 = 2) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "measure1") %>%
+  pivot_longer(
+    cols = m3.1:m3.2,
+    names_to = "measure2",
+    values_to = "value") %>%
+ ggplot(aes(measure1, measure2, fill = value, label=round(value,2))) +
+ geom_tile() +
+ labs(x = NULL, y = NULL) +
+ ggtitle("Correlations Among Indicators for Driver 3") +  
+ scale_fill_gradient2(mid="#FBFEF9",low="#A63446",high="#0C6291", limits=c(-1,1)) +
+ geom_text() +
+ scale_x_discrete(expand=c(0,0)) +
+ scale_y_discrete(expand=c(0,0)) + 
+ theme(legend.direction = "vertical", legend.box = "vertical", legend.position = "right") + 
+ guides(fill = guide_legend(reverse = TRUE))
+
+rcor3 <- final_export %>%
+  select(m3.1_banks_scale:m3.2_check_cashing_scale) %>%
+  rename(m3.1 = 1,
+         m3.2 = 2) %>%
+  mutate(m3.2 = 1 - m3.2) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  psych::alpha()
+
+totals3 <- rcor3$total %>%
+  as.data.frame() %>%
+  mutate(driver = "Driver 3")
+
+cord4 <- final_export %>%
+  select(m4.1_quality_scale:m4.4_vacant_buildings_scale) %>%
+  rename(m4.1 = 1,
+         m4.2 = 2,
+         m4.3 = 3,
+         m4.4 = 4) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "measure1") %>%
+  pivot_longer(
+    cols = m4.1:m4.4,
+    names_to = "measure2",
+    values_to = "value") %>%
+ ggplot(aes(measure1, measure2, fill = value, label=round(value,2))) +
+ geom_tile() +
+ labs(x = NULL, y = NULL) +
+ ggtitle("Correlations Among Indicators for Driver 4") +  
+ scale_fill_gradient2(mid="#FBFEF9",low="#A63446",high="#0C6291", limits=c(-1,1)) +
+ geom_text() +
+ scale_x_discrete(expand=c(0,0)) +
+ scale_y_discrete(expand=c(0,0)) + 
+ theme(legend.direction = "vertical", legend.box = "vertical", legend.position = "right") + 
+ guides(fill = guide_legend(reverse = TRUE))
+
+rcor4 <- final_export %>%
+  select(m4.1_quality_scale:m4.4_vacant_buildings_scale) %>%
+  rename(m4.1 = 1,
+         m4.2 = 2,
+         m4.3 = 3,
+         m4.4 = 4) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  psych::alpha()
+
+totals4 <- rcor4$total %>%
+  as.data.frame() %>%
+  mutate(driver = "Driver 4")
+
+cord5 <- final_export %>%
+  select(m5.1_buses_scale:m5.6_parking_scale) %>%
+  rename(m5.1 = 1,
+         m5.2 = 2,
+         m5.3 = 3,
+         m5.4 = 4,
+         m5.5 = 5,
+         m5.6 = 6) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "measure1") %>%
+  pivot_longer(
+    cols = m5.1:m5.6,
+    names_to = "measure2",
+    values_to = "value") %>%
+ ggplot(aes(measure1, measure2, fill = value, label=round(value,2))) +
+ geom_tile() +
+ labs(x = NULL, y = NULL) +
+ ggtitle("Correlations Among Indicators for Driver 5") +  
+ scale_fill_gradient2(mid="#FBFEF9",low="#A63446",high="#0C6291", limits=c(-1,1)) +
+ geom_text() +
+ scale_x_discrete(expand=c(0,0)) +
+ scale_y_discrete(expand=c(0,0)) + 
+ theme(legend.direction = "vertical", legend.box = "vertical", legend.position = "right") + 
+ guides(fill = guide_legend(reverse = TRUE))
+
+rcor5 <- final_export %>%
+  select(m5.1_buses_scale:m5.6_parking_scale) %>%
+  rename(m5.1 = 1,
+         m5.2 = 2,
+         m5.3 = 3,
+         m5.4 = 4,
+         m5.5 = 5,
+         m5.6 = 6) %>%
+  mutate(m5.5 = 1 - m5.5,
+         m5.6 = 1 - m5.6) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  psych::alpha()
+ 
+totals5 <- rcor5$total %>%
+  as.data.frame() %>%
+  mutate(driver = "Driver 5")
+
+cord6 <- final_export %>%
+  select(m6.1_grocery_store_scale:m6.6_liquor_store_scale) %>%
+  rename(m6.1 = 1,
+         m6.2 = 2,
+         m6.3 = 3,
+         m6.4 = 4,
+         m6.5 = 5,
+         m6.6 = 6) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "measure1") %>%
+  pivot_longer(
+    cols = m6.1:m6.6,
+    names_to = "measure2",
+    values_to = "value") %>%
+ ggplot(aes(measure1, measure2, fill = value, label=round(value,2))) +
+ geom_tile() +
+ labs(x = NULL, y = NULL) +
+ ggtitle("Correlations Among Indicators for Driver 6") +  
+ scale_fill_gradient2(mid="#FBFEF9",low="#A63446",high="#0C6291", limits=c(-1,1)) +
+ geom_text() +
+ scale_x_discrete(expand=c(0,0)) +
+ scale_y_discrete(expand=c(0,0)) + 
+ theme(legend.direction = "vertical", legend.box = "vertical", legend.position = "right") + 
+ guides(fill = guide_legend(reverse = TRUE))
+
+rcor6 <- final_export %>%
+  select(m6.1_grocery_store_scale:m6.6_liquor_store_scale) %>%
+  rename(m6.1 = 1,
+         m6.2 = 2,
+         m6.3 = 3,
+         m6.4 = 4,
+         m6.5 = 5,
+         m6.6 = 6) %>%
+  mutate(m6.6 = 1 - m6.6) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  psych::alpha()
+
+totals6 <- rcor6$total %>%
+  as.data.frame() %>%
+  mutate(driver = "Driver 6")  
+
+cord7 <- final_export %>%
+  select(m7.1_health_care_scale:m7.2_mental_health_scale) %>%
+  rename(m7.1 = 1,
+         m7.2 = 2) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "measure1") %>%
+  pivot_longer(
+    cols = m7.1:m7.2,
+    names_to = "measure2",
+    values_to = "value") %>%
+ ggplot(aes(measure1, measure2, fill = value, label=round(value,2))) +
+ geom_tile() +
+ labs(x = NULL, y = NULL) +
+ ggtitle("Correlations Among Indicators for Driver 7") +  
+ scale_fill_gradient2(mid="#FBFEF9",low="#A63446",high="#0C6291", limits=c(-1,1)) +
+ geom_text() +
+ scale_x_discrete(expand=c(0,0)) +
+ scale_y_discrete(expand=c(0,0)) + 
+ theme(legend.direction = "vertical", legend.box = "vertical", legend.position = "right") + 
+ guides(fill = guide_legend(reverse = TRUE))
+
+rcor7 <- final_export %>%
+  select(m7.1_health_care_scale:m7.2_mental_health_scale) %>%
+  rename(m7.1 = 1,
+         m7.2 = 2) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  psych::alpha()
+
+totals7 <- rcor7$total %>%
+  as.data.frame() %>%
+  mutate(driver = "Driver 7")
+
+cord8 <- final_export %>%
+  select(m8.1_urban_tree_canopy_scale:m8.6_flood_plains_scale) %>%
+  rename(m8.1 = 1,
+         m8.2 = 2,
+         m8.3 = 3,
+         m8.4 = 4,
+         m8.5 = 5,
+         m8.6 = 6) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "measure1") %>%
+  pivot_longer(
+    cols = m8.1:m8.6,
+    names_to = "measure2",
+    values_to = "value") %>%
+ ggplot(aes(measure1, measure2, fill = value, label=round(value,2))) +
+ geom_tile() +
+ labs(x = NULL, y = NULL) +
+ ggtitle("Correlations Among Indicators for Driver 8") +  
+ scale_fill_gradient2(mid="#FBFEF9",low="#A63446",high="#0C6291", limits=c(-1,1)) +
+ geom_text() +
+ scale_x_discrete(expand=c(0,0)) +
+ scale_y_discrete(expand=c(0,0)) + 
+ theme(legend.direction = "vertical", legend.box = "vertical", legend.position = "right") + 
+ guides(fill = guide_legend(reverse = TRUE))
+
+rcor8 <- final_export %>%
+  select(m8.1_urban_tree_canopy_scale:m8.6_flood_plains_scale) %>%
+  rename(m8.1 = 1,
+         m8.2 = 2,
+         m8.3 = 3,
+         m8.4 = 4,
+         m8.5 = 5,
+         m8.6 = 6) %>%
+  mutate(m8.1 = 1 - m8.1,
+         m8.3 = 1 - m8.3) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  psych::alpha()
+
+totals8 <- rcor8$total %>%
+  as.data.frame() %>%
+  mutate(driver = "Driver 8")
+
+cord9 <- final_export %>%
+  select(m9.1_vacant_lots_scale:m9.5_HIN_scale) %>%
+  rename(m9.1 = 1,
+         m9.2 = 2,
+         m9.3 = 3,
+         m9.4 = 4,
+         m9.5 = 5) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  as.data.frame() %>%
+  rownames_to_column(var = "measure1") %>%
+  pivot_longer(
+    cols = m9.1:m9.5,
+    names_to = "measure2",
+    values_to = "value") %>%
+ ggplot(aes(measure1, measure2, fill = value, label=round(value,2))) +
+ geom_tile() +
+ labs(x = NULL, y = NULL) +
+ ggtitle("Correlations Among Indicators for Driver 9") +  
+ scale_fill_gradient2(mid="#FBFEF9",low="#A63446",high="#0C6291", limits=c(-1,1)) +
+ geom_text() +
+ scale_x_discrete(expand=c(0,0)) +
+ scale_y_discrete(expand=c(0,0)) + 
+ theme(legend.direction = "vertical", legend.box = "vertical", legend.position = "right") + 
+ guides(fill = guide_legend(reverse = TRUE))
+
+rcor9 <- final_export %>%
+  select(m9.1_vacant_lots_scale:m9.5_HIN_scale) %>%
+  rename(m9.1 = 1,
+         m9.2 = 2,
+         m9.3 = 3,
+         m9.4 = 4,
+         m9.5 = 5) %>%
+  mutate(m9.1 = 1 - m9.1,
+         m9.5 = 1 - m9.5) %>%
+  cor(use = "complete.obs", method = "pearson") %>%
+  psych::alpha()
+
+totals9 <- rcor9$total %>%
+  as.data.frame() %>%
+  mutate(driver = "Driver 9")
+
+cord1
+cord3
+cord4
+cord5
+cord6
+cord7
+cord8
+cord9
+
+totals1 %>%
+  rbind(totals3, totals4, totals5, totals6, totals7, totals8, totals9) %>%
+  select(driver, everything()) %>%
+  janitor::clean_names() %>%
+  gt() %>%
+  cols_label(
+    driver = md("**Driver**"),
+    raw_alpha = md("**Cronbach's Alpha**"),
+    std_alpha = md("**Standardized Alpha**"),
+    g6_smc = md("**Guttman's Lambda**"),
+    average_r = md("**Average Interitem Correlation**"),
+    s_n = md("**S/N**"),
+    median_r = md("**Median Interitem Correlation**")
+  ) %>%
+  opt_table_font(font = "Lato") %>%
+  tab_options(table.font.size = 11) %>%
+  cols_align(align = "center", columns = everything()) %>%
+  fmt_number(columns = raw_alpha:median_r, decimals = 2) %>%
+  tab_header(md("**Internal Consistency Analysis Using Cronbach's Alpha and Guttman's Lambda**"))
+
+
+```
+
+
+
