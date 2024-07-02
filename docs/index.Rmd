@@ -3683,11 +3683,11 @@ all_measures_corrected <- all_measures %>%
   mutate_at(vars(doverall), list(scale = scale_column)) %>%
   rename(doverall_scale = scale) %>%
   # create priority census tract, which is 1 if overall percentile is below 10%
-  mutate(priority = case_when(doverall_scale <= 0.10 ~ 1,
+  mutate(bottom10 = case_when(doverall_scale <= 0.10 ~ 1,
                               TRUE ~ 0))
 
 final_export <- all_measures_corrected %>%
-  select(GEOID, m1.1_schools:m9.5_HIN_scale, d1_scale:d9_scale, doverall_scale, priority)
+  select(GEOID, m1.1_schools:m9.5_HIN_scale, d1:d9, d1_scale:d9_scale, doverall_scale, bottom10)
 
 write.csv(final_export, "C:/Hacktoberfest/Output/final_output.csv", row.names = FALSE)
 
